@@ -1,5 +1,5 @@
 // npm run verify [step…] — the gate every commit has to pass.
-// Runs the steps in order and stops at the first failure. A step whose target does not exist
+// Steps: tools, badges, i18n, assign, types, build, smoke. Runs them in order and stops at the first failure. A step whose target does not exist
 // yet is skipped, so the gate works from the very first commit and grows with the project.
 // Every run is appended to tools/.runs.jsonl: the loop reads it to spot slow or flaky steps.
 import { spawnSync } from 'node:child_process';
@@ -10,6 +10,7 @@ const STEPS = [
   { name: 'badges', needs: 'src/badges', cmd: ['node', 'tools/badges-check.mjs'] },
   { name: 'i18n', needs: 'src/i18n', cmd: ['node', 'tools/i18n-check.mjs'] },
   { name: 'assign', needs: 'src/lib/assign.check.ts', cmd: ['node', 'src/lib/assign.check.ts'] },
+  { name: 'types', needs: 'src', cmd: ['npx', 'tsc', '--noEmit', '-p', '.'] },
   { name: 'build', needs: 'astro.config.mjs', cmd: ['npx', 'astro', 'build'] },
   { name: 'smoke', needs: 'src/pages/api/questions.ts', cmd: ['node', 'tools/smoke.mjs'] },
 ];

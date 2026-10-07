@@ -57,6 +57,13 @@ try {
   assert.equal(i18n({ en: { a: 'x' }, es: { a: 'x' } }, "t('nope')"), 1, 'i18n-check catches an unknown key');
   checks += 4;
 
+  // The types step really fails on a type error (astro build alone does not check types).
+  const ts = mkdtempSync(join(tmp, 'ts-'));
+  writeFileSync(join(ts, 'bad.ts'), "export const x: number = 'a';\n");
+  writeFileSync(join(ts, 'tsconfig.json'), JSON.stringify({ compilerOptions: { strict: true, noEmit: true }, files: ['bad.ts'] }));
+  assert.notEqual(spawnSync('npx', ['tsc', '-p', ts]).status, 0, 'tsc accepts a type error');
+  checks++;
+
   console.log(`ok: ${checks} self-checks`);
 } finally {
   rmSync(tmp, { recursive: true, force: true });

@@ -9,7 +9,7 @@ These tools are for you, the agent building Quiztiary. Hosts never run them by h
 
 | Tool | What it tells you |
 |------|-------------------|
-| `npm run verify [step…]` | The gate. Steps: `tools`, `badges`, `i18n`, `assign`, `build`, `smoke`. Stops at the first failure. |
+| `npm run verify [step…]` | The gate. Steps: `tools`, `badges`, `i18n`, `assign`, `types`, `build`, `smoke`. Stops at the first failure. |
 | `tools/smoke.mjs` | Boots `dist/` with a throwaway DB, no AI key, no release delay, and walks ask → badge → panel → answered → status. |
 | `tools/badges-check.mjs [file…]` | Is a badge theme drawable, rollable and named? |
 | `tools/i18n-check.mjs` | Same keys and `{placeholders}` in every locale; every `t('key')` exists. |
