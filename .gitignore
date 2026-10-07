@@ -9,3 +9,4 @@ dist
 tools/.runs.jsonl
 designs/
 tools/.shots/
+.claude/scheduled_tasks.lock

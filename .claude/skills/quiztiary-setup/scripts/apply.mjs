@@ -19,7 +19,10 @@ need(existsSync(`src/i18n/${c.locale}.json`), `locale "${c.locale}" needs src/i1
 need(existsSync(`src/lib/judges/${c.ai}.ts`), `ai "${c.ai}" needs src/lib/judges/${c.ai}.ts`);
 need(existsSync(`src/badges/themes/${c.badges}.mjs`), `badges "${c.badges}" needs src/badges/themes/${c.badges}.mjs`);
 need(Array.isArray(c.releaseDelay) && c.releaseDelay.length === 2 && c.releaseDelay[0] >= 0 && c.releaseDelay[1] >= c.releaseDelay[0], 'releaseDelay must be [min, max] seconds');
-need(['cloudflare', 'origin'].includes(c.publicUrl), 'publicUrl must be "cloudflare" or "origin" (a fixed URL goes in env.PUBLIC_URL)');
+// Public URL strategies are the keys of STRATEGIES in src/lib/public-url.ts; read them from there
+// so a strategy a host adds is accepted here too.
+const strategies = [...readFileSync('src/lib/public-url.ts', 'utf8').matchAll(/^ {2}(\w+): async/gm)].map((m) => m[1]);
+need(strategies.includes(c.publicUrl), `publicUrl must be one of ${strategies.join(', ')} (a fixed URL goes in env.PUBLIC_URL)`);
 for (const k of ['accent', 'gold']) need(/^#[0-9a-f]{6}$/i.test(c.colors[k]), `colors.${k} must be #rrggbb`);
 need(typeof c.audience === 'string' && c.audience.trim(), 'audience must not be empty');
 if (errors.length) {
