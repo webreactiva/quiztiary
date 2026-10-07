@@ -1,5 +1,6 @@
 import { DatabaseSync } from 'node:sqlite';
 import { EventEmitter } from 'node:events';
+import { randomInt } from 'node:crypto';
 import config from '../../quiztiary.config.mjs';
 import type { Prize } from './assign.ts';
 
@@ -60,11 +61,19 @@ for (const { release_at } of db.prepare('SELECT release_at FROM questions WHERE 
 
 export function addQuestion(text: string, { badge, rarity, accessories }: Prize) {
   const releaseAt = Date.now() + MIN_DELAY + Math.random() * (MAX_DELAY - MIN_DELAY);
-  const { lastInsertRowid } = db
-    .prepare('INSERT INTO questions (text, badge, rarity, accessories, release_at) VALUES (?, ?, ?, ?, ?)')
-    .run(text, badge, rarity, JSON.stringify(accessories), Math.round(releaseAt));
+  // Random ids: sequential ones would reveal the real order of arrival and undo the delay.
+  // ponytail: 2^48 space, a collision just fails that one insert.
+  const id = randomInt(1, 2 ** 48);
+  db.prepare('INSERT INTO questions (id, text, badge, rarity, accessories, release_at) VALUES (?, ?, ?, ?, ?, ?)').run(
+    id,
+    text,
+    badge,
+    rarity,
+    JSON.stringify(accessories),
+    Math.round(releaseAt),
+  );
   scheduleRelease(releaseAt);
-  return Number(lastInsertRowid);
+  return id;
 }
 
 /** Answered ids among the ones asked for. Returns no text: it is served without a password. */
