@@ -7,7 +7,7 @@
 - [x] Prize roll generic over any theme; `assign.check.ts` derives its thresholds from the theme
 - [x] Pluggable judges: `random` (no AI) and `jev`; adding one is one file + one map entry
 - [x] Storage with configurable DB path and release delay; long polling as in preguntario
-- [ ] Public URL strategies: `PUBLIC_URL` env → Cloudflare quick tunnel → request origin
+- [x] Public URL strategies: `PUBLIC_URL` env → Cloudflare quick tunnel → request origin
 - [ ] API routes and pages ported, every string through `t()`
 - [ ] Badge gallery for any theme
 - [ ] A second, small theme to prove themes are swappable
