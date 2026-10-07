@@ -6,7 +6,8 @@
     "dev": "node --env-file-if-exists=.env node_modules/astro/bin/astro.mjs dev",
     "build": "astro build",
     "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning dist/server/entry.mjs",
-    "verify": "node tools/verify.mjs"
+    "verify": "node tools/verify.mjs",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.7",

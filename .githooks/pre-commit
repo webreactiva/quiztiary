@@ -1,0 +1,3 @@
+#!/bin/sh
+# Every commit passes the gate. Enabled by `npm install` (prepare script sets core.hooksPath).
+exec npm run --silent verify

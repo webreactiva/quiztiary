@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const run = (...args) => spawnSync('node', args, { encoding: 'utf8' });
 const tmp = mkdtempSync(join(tmpdir(), 'quiztiary-self-'));
@@ -21,7 +22,10 @@ try {
 
   // badges-check rejects a wrong row width, an unknown colour key and a missing hint.
   const row = '.'.repeat(16);
-  const good = { hint: 'Asks why something works', crownY: 0, palette: { k: '#000000' }, shiny: { k: '#ffffff' }, text: {}, rows: Array(16).fill(row) };
+  // The good fixture names itself in the active locale, so it stays valid whatever the host picks.
+  const locale = existsSync('quiztiary.config.mjs') ? (await import(pathToFileURL(resolve('quiztiary.config.mjs')))).default.locale : 'en';
+  const text = { [locale]: { name: 'Owl', kind: 'Asks why' } };
+  const good = { hint: 'Asks why something works', crownY: 0, palette: { k: '#000000' }, shiny: { k: '#ffffff' }, text, rows: Array(16).fill(row) };
   const theme = (badges) => `export default { name: 'T', badges: ${JSON.stringify(badges)} };`;
   const cases = {
     'good.mjs': [theme({ a: good, b: good }), 0],
@@ -29,6 +33,7 @@ try {
     'colour.mjs': [theme({ a: good, b: { ...good, rows: [...good.rows.slice(1), 'z'.repeat(16)] } }), 1],
     'hint.mjs': [theme({ a: good, b: { ...good, hint: '' } }), 1],
     'alone.mjs': [theme({ a: good }), 1],
+    'unnamed.mjs': [theme({ a: good, b: { ...good, text: {} } }), 1],
   };
   for (const [name, [src, status]] of Object.entries(cases)) {
     writeFileSync(join(tmp, name), src);
