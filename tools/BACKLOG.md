@@ -9,7 +9,7 @@
 - [x] Storage with configurable DB path and release delay; long polling as in preguntario
 - [x] Public URL strategies: `PUBLIC_URL` env → Cloudflare quick tunnel → request origin
 - [x] API routes and pages ported, every string through `t()`
-- [ ] Badge gallery for any theme
+- [x] Badge gallery for any theme
 - [ ] A second, small theme to prove themes are swappable
 - [ ] `quiztiary-setup` skill (skill-creator) that asks the host everything with defaults
 - [ ] README

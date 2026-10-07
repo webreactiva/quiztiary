@@ -9,7 +9,8 @@
     "verify": "node tools/verify.mjs",
     "prepare": "git config core.hooksPath .githooks",
     "tunnel": "sh scripts/tunnel.sh",
-    "reset-db": "node scripts/reset-db.mjs"
+    "reset-db": "node scripts/reset-db.mjs",
+    "gallery": "node scripts/gallery.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.7",
