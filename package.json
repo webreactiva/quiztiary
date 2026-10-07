@@ -7,7 +7,9 @@
     "build": "astro build",
     "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning dist/server/entry.mjs",
     "verify": "node tools/verify.mjs",
-    "prepare": "git config core.hooksPath .githooks"
+    "prepare": "git config core.hooksPath .githooks",
+    "tunnel": "sh scripts/tunnel.sh",
+    "reset-db": "node scripts/reset-db.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.7",

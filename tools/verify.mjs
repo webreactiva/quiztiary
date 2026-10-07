@@ -1,6 +1,7 @@
 // npm run verify [step…] — the gate every commit has to pass.
-// Steps: tools, badges, i18n, assign, types, build, smoke. Runs them in order and stops at the first failure. A step whose target does not exist
-// yet is skipped, so the gate works from the very first commit and grows with the project.
+// Steps: tools, badges, i18n, assign, types, build, smoke. Runs them in order and stops at the
+// first failure. A step whose target does not exist yet is skipped, so the gate works from the
+// very first commit and grows with the project.
 // Every run is appended to tools/.runs.jsonl: the loop reads it to spot slow or flaky steps.
 import { spawnSync } from 'node:child_process';
 import { appendFileSync, existsSync } from 'node:fs';
