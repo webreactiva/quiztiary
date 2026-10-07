@@ -1,15 +1,19 @@
 ---
 import config from '../../quiztiary.config.mjs';
 import { locale } from '../i18n/index.ts';
+import { BADGES, badgeSvg } from '../badges/index.ts';
 import '../styles.css';
 
 const { title = config.name, noindex = false } = Astro.props;
+// The favicon is the theme's first badge, so it follows the theme with no extra file.
+const icon = `data:image/svg+xml,${encodeURIComponent(badgeSvg(Object.keys(BADGES)[0], { size: 32 }))}`;
 ---
 <html lang={locale} style={`--accent: ${config.colors.accent}; --gold: ${config.colors.gold}`}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     {noindex && <meta name="robots" content="noindex" />}
+    <link rel="icon" href={icon} />
     <title>{title}</title>
   </head>
   <body>
