@@ -11,7 +11,7 @@ const STEPS = [
   { name: 'i18n', needs: 'src/i18n', cmd: ['node', 'tools/i18n-check.mjs'] },
   { name: 'assign', needs: 'src/lib/assign.check.ts', cmd: ['node', 'src/lib/assign.check.ts'] },
   { name: 'build', needs: 'astro.config.mjs', cmd: ['npx', 'astro', 'build'] },
-  { name: 'smoke', needs: 'astro.config.mjs', cmd: ['node', 'tools/smoke.mjs'] },
+  { name: 'smoke', needs: 'src/pages/api/questions.ts', cmd: ['node', 'tools/smoke.mjs'] },
 ];
 
 const only = process.argv.slice(2);
@@ -35,7 +35,7 @@ for (const step of STEPS) {
     continue;
   }
   const start = Date.now();
-  const r = spawnSync(step.cmd[0], step.cmd.slice(1), { encoding: 'utf8', env: { ...process.env, FORCE_COLOR: '0' } });
+  const r = spawnSync(step.cmd[0], step.cmd.slice(1), { encoding: 'utf8', env: { ...process.env, FORCE_COLOR: '0', NO_COLOR: '1' } });
   const ms = Date.now() - start;
   const ok = r.status === 0;
   log({ step: step.name, ok, ms });
