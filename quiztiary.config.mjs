@@ -6,9 +6,9 @@ export default {
   // Prefix for the browser storage keys and the database file (<slug>.db). Lowercase, no spaces.
   slug: 'quiztiary',
   // Active language: a file in src/i18n/. Only one is active at a time.
-  locale: 'es',
+  locale: 'en',
   // Who is asking. The AI judge reads it to understand the questions (in English).
-  audience: 'participants in a beginner AI training session',
+  audience: 'participants in a live online session',
   // How badges are rolled: a file in src/lib/judges/. 'random' needs no AI; 'jev' needs JEV_API_KEY.
   ai: 'random',
   // Badge theme: a file in src/badges/themes/.
