@@ -21,7 +21,8 @@ if (!page) {
   process.exit(0);
 }
 const server = await startServer();
-const QUESTION = 'Why does the model make things up when it does not know?';
+// Markup in the question must come out as text, in the panel and in "your questions".
+const QUESTION = 'Why <b>does</b> it <img src=x onerror="window.__xss=1"> make things up?';
 let step = 'open home';
 try {
   mkdirSync('tools/.shots', { recursive: true });
@@ -47,6 +48,8 @@ try {
   await page.waitFor((q) => [...document.querySelectorAll('#pending li')].some((li) => li.textContent.includes(q)), { label: 'question in panel' }, QUESTION);
   await page.shot('tools/.shots/panel.png');
 
+  assert.ok(await page.eval(() => !document.querySelector('#pending .text b, #pending .text img') && !window.__xss), 'question markup is rendered as text in the panel');
+
   step = 'mark answered';
   await page.eval(() => document.querySelector('#pending li button').click());
   await page.waitFor(() => document.querySelector('#done-count').textContent === '1', { label: 'answered count 1' });
@@ -55,6 +58,7 @@ try {
   await page.goto(server.base);
   await page.waitFor((label) => document.querySelector('#mine-list .badge.done')?.textContent === label, { label: 'answered badge' }, messages.home.answered);
 
+  assert.ok(await page.eval((q) => [...document.querySelectorAll('#mine-list .q')].some((el) => el.textContent === q) && !window.__xss, QUESTION), 'question markup is rendered as text in "your questions"');
   const errors = page.errors.filter((e) => !/status of 401/.test(e)); // the panel probes with no password first
   assert.deepEqual(errors, [], 'page errors');
   console.log(`ok: asked, won ${won}, answered round trip · shots in tools/.shots/`);

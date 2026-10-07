@@ -57,6 +57,10 @@ export async function launch({ width = 420, height = 900 } = {}) {
       msg.error ? ko(new Error(msg.error.message)) : ok(msg.result);
     } else if (msg.method === 'Runtime.exceptionThrown') {
       errors.push(msg.params.exceptionDetails.exception?.description ?? msg.params.exceptionDetails.text);
+    } else if (msg.method === 'Network.requestWillBeSent') {
+      // Anything that leaves the app (fonts, analytics, CDNs) leaks participants' IPs.
+      const { protocol, hostname } = new URL(msg.params.request.url);
+      if (/^https?:$/.test(protocol) && !['127.0.0.1', 'localhost'].includes(hostname)) errors.push(`third-party request: ${msg.params.request.url}`);
     } else if (msg.method === 'Log.entryAdded' && msg.params.entry.level === 'error') {
       errors.push(`${msg.params.entry.text} ${msg.params.entry.url ?? ''}`.trim()); // failed requests, CSP, …
     } else if (msg.method === 'Runtime.consoleAPICalled' && msg.params.type === 'error') {
@@ -71,6 +75,7 @@ export async function launch({ width = 420, height = 900 } = {}) {
   await send('Runtime.enable');
   await send('Page.enable');
   await send('Log.enable');
+  await send('Network.enable');
 
   const page = {
     errors,

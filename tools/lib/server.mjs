@@ -46,6 +46,7 @@ export async function startServer({ password = 'test-secret', env = {} } = {}) {
   }
   return {
     base,
+    db: join(dir, 'test.db'),
     password,
     output: () => output,
     stop: () => {

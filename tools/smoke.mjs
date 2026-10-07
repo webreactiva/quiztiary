@@ -4,7 +4,11 @@
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 import { startServer } from './lib/server.mjs';
+import { MAX_LENGTH } from '../src/lib/limits.ts';
 
 const config = (await import(pathToFileURL(resolve('quiztiary.config.mjs')))).default;
 const theme = (await import(pathToFileURL(resolve(`src/badges/themes/${config.badges}.mjs`)))).default;
@@ -32,6 +36,12 @@ try {
   assert.equal(res.status, 400);
   assert.ok((await res.json()).error, 'empty question explains why');
 
+  step('POST too long');
+  res = await fetch(`${base}/api/questions`, { method: 'POST', headers: json, body: JSON.stringify({ text: 'x'.repeat(MAX_LENGTH + 1) }) });
+  assert.equal(res.status, 400, `a ${MAX_LENGTH + 1}-character question is refused`);
+  res = await fetch(`${base}/api/questions`, { method: 'POST', headers: json, body: 'x'.repeat(MAX_LENGTH * 10) });
+  assert.equal(res.status, 413, 'an oversized body is refused before parsing');
+
   step('POST question');
   res = await fetch(`${base}/api/questions`, {
     method: 'POST',
@@ -44,6 +54,18 @@ try {
   assert.ok(prize.badge in theme.badges, `badge "${prize.badge}" belongs to theme "${config.badges}"`);
   assert.ok(['common', 'shiny', 'legendary'].includes(prize.rarity));
   assert.ok(Array.isArray(prize.accessories));
+
+  step('ids do not reveal order');
+  const ids = [prize.id];
+  for (let i = 0; i < 3; i++) {
+    const r = await fetch(`${base}/api/questions`, { method: 'POST', headers: json, body: JSON.stringify({ text: `Question number ${i}?` }) });
+    ids.push((await r.json()).id);
+  }
+  assert.ok(ids.slice(1).some((id, i) => id !== ids[i] + 1), `ids are sequential: ${ids}`);
+
+  step('nothing identifying is stored');
+  const columns = new DatabaseSync(server.db, { readOnly: true }).prepare('PRAGMA table_info(questions)').all().map((c) => c.name);
+  assert.deepEqual(columns.sort(), ['accessories', 'answered_at', 'badge', 'id', 'rarity', 'release_at', 'text'], 'questions table columns');
 
   step('GET /api/questions without password');
   assert.equal((await fetch(`${base}/api/questions`)).status, 401);
@@ -68,6 +90,22 @@ try {
   res = await fetch(`${base}/api/public-url`, { headers: admin });
   assert.equal(res.status, 200);
   assert.ok('url' in (await res.json()));
+
+  step('release delay holds questions back');
+  const slow = await startServer({ env: { RELEASE_DELAY: '60' } });
+  try {
+    await fetch(`${slow.base}/api/questions`, { method: 'POST', headers: json, body: JSON.stringify({ text: 'Held back?' }) });
+    const held = await (await fetch(`${slow.base}/api/questions`, { headers: { 'x-panel-password': slow.password } })).json();
+    assert.equal(held.questions.length, 0, 'a question with a 60 s delay is already in the panel');
+  } finally {
+    slow.stop();
+  }
+
+  step('no secrets in the client bundle');
+  const walk = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
+  for (const f of walk('dist/client').filter((f) => /\.(js|css|html)$/.test(f))) {
+    assert.ok(!/PANEL_PASSWORD|JEV_API_KEY|process\.env/.test(readFileSync(f, 'utf8')), `${f} mentions a server secret`);
+  }
 
   console.log(`ok: ${config.locale} · ${config.ai} · ${config.badges} · got ${prize.rarity} ${prize.badge}`);
 } catch (e) {

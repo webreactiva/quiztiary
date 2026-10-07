@@ -80,12 +80,13 @@ try {
   const page = await launch();
   if (page) {
     try {
-      await page.goto(`data:text/html,<img src="http://127.0.0.1:9/missing.png"><script>throw new Error('boom')</script>`);
+      await page.goto(`data:text/html,<img src="http://127.0.0.1:9/missing.png"><img src="http://example.invalid/x.png"><script>throw new Error('boom')</script>`);
       await page.waitFor(() => true);
       await new Promise((r) => setTimeout(r, 300));
       assert.ok(page.errors.some((e) => e.includes('boom')), 'browser misses a thrown error');
       assert.ok(page.errors.some((e) => e.includes('missing.png')), 'browser misses a failed request');
-      checks += 2;
+      assert.ok(page.errors.some((e) => e.startsWith('third-party request: http://example.invalid')), 'browser misses a third-party request');
+      checks += 3;
     } finally {
       page.close();
     }
