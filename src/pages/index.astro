@@ -1,0 +1,235 @@
+---
+import config from '../../quiztiary.config.mjs';
+import Base from '../layouts/Base.astro';
+import { t } from '../i18n/index.ts';
+import { MAX_LENGTH } from '../lib/limits.ts';
+---
+<Base>
+    <main>
+      <h1>{config.name}</h1>
+      <p class="muted">{t('home.tagline')}</p>
+
+      <details id="mine" hidden>
+        <summary class="pixel">{t('home.mine')} (<span id="mine-count">0</span>)</summary>
+        <ul id="mine-list"></ul>
+      </details>
+
+      <form id="ask">
+        <label for="text" class="sr">{t('home.label')}</label>
+        <textarea id="text" name="text" rows="4" maxlength={MAX_LENGTH} required autofocus placeholder={t('home.placeholder')}></textarea>
+        <div class="row">
+          <button type="submit">{t('home.send')}</button>
+          <p id="error" role="alert"></p>
+        </div>
+      </form>
+
+      <section id="reveal" hidden aria-live="polite">
+        <div id="reveal-art"></div>
+        <p id="reveal-name" class="pixel"></p>
+      </section>
+
+      <h2>{t('home.collection')} <span id="count" class="muted"></span></h2>
+      <div id="grid"></div>
+      <p class="muted small">{t('home.privacy')}</p>
+    </main>
+
+    <style is:global>
+      .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+      textarea {
+        width: 100%;
+        font: inherit;
+        padding: 12px;
+        border: 2px solid var(--fg);
+        border-radius: 6px;
+        background: var(--card);
+        color: #2b2118;
+        resize: vertical;
+        margin-top: 16px;
+      }
+      .row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+      #error { color: var(--accent); margin: 0; }
+      #reveal { text-align: center; margin: 32px 0 0; }
+      #reveal-art { display: inline-block; animation: pop .6s cubic-bezier(.3, 1.6, .5, 1); }
+      #reveal-art svg { border-radius: 8px; }
+      #reveal-name { font-size: 28px; margin: 8px 0 0; }
+      @keyframes pop { from { transform: scale(.2) rotate(-12deg); opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) { #reveal-art { animation: none; } }
+      #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 12px; }
+      .cell {
+        background: var(--card);
+        border: 2px solid var(--line);
+        border-radius: 6px;
+        padding: 8px;
+        text-align: center;
+        color: #2b2118;
+        font-size: 14px;
+      }
+      .cell svg { width: 100%; height: auto; }
+      .cell.locked svg { filter: brightness(0); opacity: .15; }
+      .cell.locked span { color: #b0a493; }
+      .cell.shiny { border-color: var(--gold); }
+      .cell.legendary { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+      .small { font-size: 14px; margin-top: 16px; }
+      #mine { margin-top: 20px; }
+      #mine summary { cursor: pointer; font-size: 18px; }
+      #mine-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+      #mine-list li {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        background: var(--card);
+        color: #2b2118;
+        border: 2px solid var(--line);
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 15px;
+      }
+      #mine-list svg { flex: none; }
+      #mine-list .q { flex: 1; overflow-wrap: anywhere; }
+      .badge { flex: none; font-size: 13px; padding: 2px 10px; border-radius: 99px; background: #efe6d8; }
+      .badge.done { background: #d4f0cd; color: #1f5c17; }
+    </style>
+
+    <script>
+      import config from '../../quiztiary.config.mjs';
+      import { t } from '../i18n/index.ts';
+      import { BADGES, badgeSvg, badgeText } from '../badges/index.ts';
+
+      type Prize = { badge: string; rarity: 'common' | 'shiny' | 'legendary'; accessories: string[] };
+      const KEY = config.slug;
+      const GENERIC = t('home.sendFailed');
+      const RANK = { common: 0, shiny: 1, legendary: 2 };
+      const $ = (id: string) => document.getElementById(id)!;
+
+      let prizes: Prize[] = [];
+      try { prizes = JSON.parse(localStorage.getItem(KEY) ?? '[]'); } catch {}
+      // A collection from another theme (the host switched it) is ignored, not shown broken.
+      prizes = prizes.filter((p) => p.badge in BADGES);
+      const save = () => { try { localStorage.setItem(KEY, JSON.stringify(prizes)); } catch {} };
+
+      // Your questions also live only in this browser; the server only says whether they are answered.
+      type Mine = Prize & { id: number; text: string; answered: boolean };
+      const MINE = `${config.slug}-mine`;
+      let mine: Mine[] = [];
+      try { mine = JSON.parse(localStorage.getItem(MINE) ?? '[]'); } catch {}
+      mine = mine.filter((q) => q.badge in BADGES);
+      const saveMine = () => { try { localStorage.setItem(MINE, JSON.stringify(mine)); } catch {} };
+
+      function renderMine() {
+        $('mine').hidden = mine.length === 0;
+        $('mine-count').textContent = String(mine.length);
+        $('mine-list').replaceChildren(
+          ...[...mine].reverse().map((q) => {
+            const li = document.createElement('li');
+            li.insertAdjacentHTML('beforeend', badgeSvg(q.badge, { rarity: q.rarity, accessories: q.accessories, size: 32 }));
+            const text = document.createElement('span');
+            text.className = 'q';
+            text.textContent = q.text;
+            const badge = document.createElement('span');
+            badge.className = q.answered ? 'badge done' : 'badge';
+            badge.textContent = q.answered ? t('home.answered') : t('home.pending');
+            li.append(text, badge);
+            return li;
+          }),
+        );
+      }
+
+      // Long polling of your questions' status. With none pending it sleeps until you send another.
+      // If the list of ids changes, it asks without waiting so nothing is missed.
+      const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+      let wakeMine = () => {};
+      async function watchMine() {
+        let version = -1;
+        let lastIds = '';
+        for (;;) {
+          const ids = mine.filter((q) => !q.answered).map((q) => q.id).join(',');
+          if (!ids) {
+            await new Promise<void>((r) => (wakeMine = r));
+            continue;
+          }
+          const since = ids === lastIds ? version : -1;
+          lastIds = ids;
+          try {
+            const res = await fetch(`/api/questions/status?ids=${ids}&since=${since}`);
+            const body: { version: number; answered: number[] } = await res.json();
+            version = body.version;
+            if (mine.some((q) => !q.answered && body.answered.includes(q.id))) {
+              mine.forEach((q) => { if (body.answered.includes(q.id)) q.answered = true; });
+              saveMine();
+              renderMine();
+            }
+          } catch {
+            await sleep(3000); // offline: retry
+          }
+        }
+      }
+
+      // For each badge, the best copy won is shown.
+      const best = (id: string) =>
+        prizes
+          .filter((p) => p.badge === id)
+          .sort((a, b) => RANK[b.rarity] - RANK[a.rarity] || b.accessories.length - a.accessories.length)[0];
+
+      function renderGrid() {
+        const ids = Object.keys(BADGES);
+        const owned = ids.filter((id) => best(id)).length;
+        $('count').textContent = `${owned}/${ids.length}`;
+        $('grid').innerHTML = ids
+          .map((id) => {
+            const p = best(id);
+            if (!p) return `<div class="cell locked">${badgeSvg(id, { size: 96 })}<span>???</span></div>`;
+            const n = prizes.filter((q) => q.badge === id).length;
+            return `<div class="cell ${p.rarity}">${badgeSvg(id, { rarity: p.rarity, accessories: p.accessories, size: 96 })}<span>${badgeText(id).name}${n > 1 ? ` ×${n}` : ''}</span></div>`;
+          })
+          .join('');
+      }
+
+      const form = $('ask') as HTMLFormElement;
+      const text = $('text') as HTMLTextAreaElement;
+      const button = form.querySelector('button')!;
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        $('error').textContent = '';
+        button.disabled = true;
+        button.textContent = t('home.sending');
+        const sent = text.value.trim();
+        try {
+          const res = await fetch('/api/questions', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ text: text.value, owned: [...new Set(prizes.map((p) => p.badge))] }),
+          });
+          const body = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            $('error').textContent = body.error ?? GENERIC;
+            return;
+          }
+          const { id, ...prize } = body as Prize & { id: number };
+          prizes.push(prize);
+          save();
+          mine.push({ id, text: sent, answered: false, ...prize });
+          saveMine();
+          renderMine();
+          wakeMine();
+          text.value = '';
+          $('reveal').hidden = false;
+          $('reveal-art').innerHTML = badgeSvg(prize.badge, { rarity: prize.rarity, accessories: prize.accessories, size: 192 });
+          $('reveal-name').textContent = badgeText(prize.badge).name;
+          $('reveal-art').style.animation = 'none';
+          void $('reveal-art').offsetWidth; // restart the animation on every prize
+          $('reveal-art').style.animation = '';
+          renderGrid();
+        } catch {
+          $('error').textContent = GENERIC;
+        } finally {
+          button.disabled = false;
+          button.textContent = t('home.send');
+        }
+      });
+
+      renderGrid();
+      renderMine();
+      watchMine();
+    </script>
+</Base>

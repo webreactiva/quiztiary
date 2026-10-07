@@ -1,0 +1,224 @@
+---
+import config from '../../quiztiary.config.mjs';
+import Base from '../layouts/Base.astro';
+import { t } from '../i18n/index.ts';
+import { releaseDelay } from '../lib/db.ts';
+---
+<Base title={`${config.name} · ${t('panel.title')}`} noindex>
+    <main>
+      <header>
+        <div>
+          <h1>{config.name}</h1>
+          <p id="where" class="muted" hidden>{t('panel.askAt')} <strong id="url" class="pixel"></strong></p>
+        </div>
+        <div id="qr" hidden></div>
+      </header>
+
+      <form id="login" hidden>
+        <label for="password">{t('panel.password')}</label>
+        <div class="row">
+          <input id="password" type="password" autocomplete="current-password" required />
+          <button type="submit">{t('panel.enter')}</button>
+        </div>
+        <p id="login-error" role="alert"></p>
+      </form>
+
+      <div id="board" hidden>
+        <p class="muted">
+          {t('panel.delay', { min: releaseDelay[0], max: releaseDelay[1] })}
+          <button id="reload" class="icon" type="button" title={t('panel.reload')} aria-label={t('panel.reload')}>🔄</button>
+        </p>
+        <ol id="pending"></ol>
+        <p id="empty" class="muted" hidden>{t('panel.empty')}</p>
+        <details id="done-box" hidden>
+          <summary class="pixel">{t('panel.answered')} (<span id="done-count">0</span>)</summary>
+          <ol id="done"></ol>
+        </details>
+      </div>
+    </main>
+
+    <style is:global>
+      main { max-width: 900px; }
+      header { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+      #where { margin: 0; }
+      #url { color: var(--accent); font-size: 1.15em; overflow-wrap: anywhere; }
+      button.icon {
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0 4px;
+        font-size: 18px;
+        opacity: .6;
+        vertical-align: middle;
+      }
+      button.icon:hover { opacity: 1; }
+      button.icon:active { transform: rotate(90deg); box-shadow: none; }
+      #qr { background: #fff; padding: 8px; border-radius: 6px; line-height: 0; }
+      #qr svg { width: 160px; height: 160px; image-rendering: auto; }
+      #login { margin-top: 32px; }
+      #login .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+      #password {
+        font: inherit;
+        padding: 10px 12px;
+        border: 2px solid var(--fg);
+        border-radius: 6px;
+        background: var(--card);
+        color: #2b2118;
+        min-width: 0;
+        flex: 1 1 220px;
+        max-width: 320px;
+      }
+      #login-error { color: var(--accent); }
+      ol { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 12px; }
+      li {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        background: var(--card);
+        color: #2b2118;
+        border: 2px solid var(--line);
+        border-radius: 6px;
+        padding: 12px 20px 12px 12px;
+        font-size: 22px;
+        line-height: 1.4;
+      }
+      li.shiny { border-color: var(--gold); }
+      li.legendary { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
+      li.new { animation: slide .5s ease-out; }
+      @keyframes slide { from { opacity: 0; transform: translateY(-8px); } }
+      li svg { flex: none; }
+      li .text { flex: 1; white-space: pre-wrap; overflow-wrap: anywhere; }
+      li button { flex: none; font-size: 15px; padding: 6px 12px; }
+      #done li { font-size: 17px; opacity: .7; }
+      summary { cursor: pointer; margin-top: 40px; font-size: 20px; }
+    </style>
+
+    <script>
+      import { renderSVG } from 'uqr';
+      import config from '../../quiztiary.config.mjs';
+      import { t } from '../i18n/index.ts';
+      import { BADGES, badgeSvg } from '../badges/index.ts';
+
+      type Q = {
+        id: number;
+        text: string;
+        badge: string;
+        rarity: 'common' | 'shiny' | 'legendary';
+        accessories: string[];
+        answered_at: number | null;
+      };
+      const STORE = `${config.slug}-panel`;
+      const $ = (id: string) => document.getElementById(id)!;
+      const seen = new Set<number>();
+      let first = true;
+      let session = 0; // each login opens a listening session; older ones stop by themselves
+      const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+      // The password lives in sessionStorage, not in the URL, so it does not show when sharing the screen.
+      let password = '';
+      try { password = sessionStorage.getItem(STORE) ?? ''; } catch {}
+
+      // The QR carries the public URL even when the panel is opened on localhost.
+      async function showPublicUrl() {
+        let url = location.origin;
+        try {
+          const body = await (await api('/api/public-url')).json();
+          if (body.url) url = body.url;
+        } catch {}
+        $('url').textContent = new URL(url).host;
+        $('qr').innerHTML = renderSVG(url);
+      }
+
+      const api = (path: string, init: RequestInit = {}) =>
+        fetch(path, { ...init, headers: { 'content-type': 'application/json', 'x-panel-password': password } });
+
+      function showLogin(message = '') {
+        session++;
+        $('board').hidden = true;
+        $('where').hidden = $('qr').hidden = true;
+        $('login').hidden = false;
+        $('login-error').textContent = message;
+        ($('password') as HTMLInputElement).focus();
+      }
+
+      function item(q: Q, done: boolean) {
+        const li = document.createElement('li');
+        li.className = q.rarity;
+        if (!first && !seen.has(q.id)) li.classList.add('new');
+        if (q.badge in BADGES) li.insertAdjacentHTML('beforeend', badgeSvg(q.badge, { rarity: q.rarity, accessories: q.accessories, size: done ? 40 : 64 }));
+        const text = document.createElement('span');
+        text.className = 'text';
+        text.textContent = q.text; // textContent: what participants write is never parsed as HTML
+        const b = document.createElement('button');
+        b.textContent = done ? t('panel.undo') : t('panel.markAnswered');
+        if (done) b.className = 'ghost';
+        b.onclick = () => mark(q.id, !done);
+        li.append(text, b);
+        return li;
+      }
+
+      async function mark(id: number, answered: boolean) {
+        const res = await api(`/api/questions/${id}`, { method: 'PATCH', body: JSON.stringify({ answered }) });
+        if (res.status === 401) showLogin(t('panel.passwordChanged'));
+        // No refresh needed: the change wakes the listener and arrives by itself.
+      }
+
+      function render(qs: Q[]) {
+        // Newest on top; among answered ones, the last answered on top.
+        const pending = qs.filter((q) => !q.answered_at).reverse();
+        const done = qs.filter((q) => q.answered_at).sort((a, b) => b.answered_at! - a.answered_at!);
+        $('pending').replaceChildren(...pending.map((q) => item(q, false)));
+        $('done').replaceChildren(...done.map((q) => item(q, true)));
+        $('done-count').textContent = String(done.length);
+        $('done-box').hidden = done.length === 0;
+        $('empty').hidden = pending.length > 0;
+        qs.forEach((q) => seen.add(q.id));
+        first = false;
+        $('login').hidden = true;
+        $('board').hidden = false;
+        $('where').hidden = $('qr').hidden = false;
+      }
+
+      // Long polling: the request stays open until there is something new, then reopens.
+      async function listen(mine: number) {
+        let version = -1;
+        while (mine === session) {
+          try {
+            const res = await api(`/api/questions?since=${version}`);
+            if (mine !== session) return;
+            if (res.status === 401) return showLogin(password ? t('panel.wrongPassword') : '');
+            const body: { version: number; questions: Q[] } = await res.json();
+            version = body.version;
+            render(body.questions);
+          } catch {
+            await sleep(2000); // server down or network cut: retry
+          }
+        }
+      }
+
+      // Manual reload: fetch the current state without waiting and read the public URL again.
+      async function reload() {
+        showPublicUrl();
+        try {
+          const res = await api('/api/questions');
+          if (res.status === 401) return showLogin(t('panel.wrongPassword'));
+          render((await res.json()).questions);
+        } catch {}
+      }
+      $('reload').addEventListener('click', reload);
+
+      function start() {
+        showPublicUrl();
+        listen(++session);
+      }
+
+      $('login').addEventListener('submit', (e) => {
+        e.preventDefault();
+        password = ($('password') as HTMLInputElement).value;
+        try { sessionStorage.setItem(STORE, password); } catch {}
+        start();
+      });
+
+      start();
+    </script>
+</Base>

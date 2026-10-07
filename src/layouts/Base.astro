@@ -1,0 +1,18 @@
+---
+import config from '../../quiztiary.config.mjs';
+import { locale } from '../i18n/index.ts';
+import '../styles.css';
+
+const { title = config.name, noindex = false } = Astro.props;
+---
+<html lang={locale} style={`--accent: ${config.colors.accent}; --gold: ${config.colors.gold}`}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {noindex && <meta name="robots" content="noindex" />}
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&display=swap');
+
+:root {
+  --bg: #f4efe6;
+  --fg: #2b2118;
+  --muted: #7a6b5a;
+  --card: #fffaf2;
+  --line: #e2d6c3;
+  --accent: #d9542b;
+  --gold: #e0a800;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #17140f; --fg: #efe6d8; --muted: #a8998a; --line: #3a3127; }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 17px/1.5 system-ui, sans-serif;
+}
+main { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+h1, h2, .pixel { font-family: 'Pixelify Sans', ui-monospace, monospace; letter-spacing: .01em; }
+h1 { font-size: 40px; margin: 0 0 4px; }
+h2 { font-size: 22px; margin: 40px 0 12px; }
+.muted { color: var(--muted); }
+svg { display: block; image-rendering: pixelated; }
+
+button {
+  font: inherit;
+  font-family: 'Pixelify Sans', ui-monospace, monospace;
+  font-weight: 700;
+  padding: 10px 20px;
+  border: 2px solid var(--fg);
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 3px 3px 0 var(--fg);
+  cursor: pointer;
+}
+button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--fg); }
+button:disabled { opacity: .5; cursor: default; }
+button.ghost { background: var(--card); color: #2b2118; }
