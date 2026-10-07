@@ -9,13 +9,14 @@ These tools are for you, the agent building Quiztiary. Hosts never run them by h
 
 | Tool | What it tells you |
 |------|-------------------|
-| `npm run verify [step…]` | The gate. Steps: `tools`, `badges`, `i18n`, `assign`, `types`, `build`, `smoke`, `ui`. Stops at the first failure. |
+| `npm run verify [step…]` | The gate. Steps: `tools`, `badges`, `i18n`, `boundaries`, `assign`, `types`, `build`, `smoke`, `ui`. Stops at the first failure. |
 | `tools/smoke.mjs` | Boots `dist/` with a throwaway DB, no AI key, no release delay, and walks ask → badge → panel → answered → status. |
 | `tools/ui.mjs` | Drives the real pages in headless Chrome (participant asks, host answers, participant sees it). Fails on script errors and failed requests. Screenshots in `tools/.shots/`: look at them. |
 | `tools/lib/browser.mjs` | The tiny CDP driver behind `ui` (`launch`, `goto`, `eval`, `waitFor`, `shot`, `errors`). Use it for one-off checks too. |
 | Chrome DevTools MCP | For interactive inspection when a check fails or a screen looks off. |
 | `tools/badges-check.mjs [file…]` | Is a badge theme drawable, rollable and named? |
 | `tools/i18n-check.mjs` | Same keys and `{placeholders}` in every locale; every `t('key')` exists. |
+| `tools/boundaries-check.mjs` | No badge id outside themes, no AI SDK outside judges: the seams stay swappable. |
 | `tools/self.check.mjs` | Every checker rejects a known-bad fixture. Guards the guards. |
 | `tools/.runs.jsonl` | One line per step per run (ok, ms). Local, not committed. |
 | `tools/LOG.md` | Why each tool changed. Read it before touching a tool. |

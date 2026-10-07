@@ -64,6 +64,21 @@ try {
   assert.equal(i18n({ en: { a: 'x' }, es: { a: 'x' } }, "t('nope')"), 1, 'i18n-check catches an unknown key');
   checks += 4;
 
+  // boundaries-check rejects a badge id outside the themes and an AI SDK outside the judges.
+  const boundaries = (file, code) => {
+    const d = mkdtempSync(join(tmp, 'src-'));
+    mkdirSync(join(d, 'badges/themes'), { recursive: true });
+    mkdirSync(join(d, 'lib/judges'), { recursive: true });
+    writeFileSync(join(d, 'badges/themes/t.mjs'), theme({ zebra: good, yak: good }));
+    mkdirSync(join(d, file, '..'), { recursive: true });
+    writeFileSync(join(d, file), code);
+    return run('tools/boundaries-check.mjs', d).status;
+  };
+  assert.equal(boundaries('lib/judges/x.ts', "import OpenAI from 'openai';"), 0, 'an AI SDK inside judges is fine');
+  assert.equal(boundaries('pages/x.astro', "const b = 'zebra';"), 1, 'boundaries-check misses a badge id in a page');
+  assert.equal(boundaries('lib/x.ts', "import OpenAI from 'openai';"), 1, 'boundaries-check misses an AI SDK outside judges');
+  checks += 3;
+
   // The types step regenerates Astro's ambient types first: a fresh clone has no .astro/.
   assert.match(verify, /astro sync[^']*tsc --noEmit/, 'types step must run astro sync before tsc');
   checks++;

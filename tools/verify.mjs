@@ -1,5 +1,5 @@
 // npm run verify [step…] — the gate every commit has to pass.
-// Steps: tools, badges, i18n, assign, types, build, smoke, ui. Runs them in order and stops at the
+// Steps: tools, badges, i18n, boundaries, assign, types, build, smoke, ui. Runs them in order and stops at the
 // first failure. A step whose target does not exist yet is skipped, so the gate works from the
 // very first commit and grows with the project.
 // Every run is appended to tools/.runs.jsonl: the loop reads it to spot slow or flaky steps.
@@ -10,6 +10,7 @@ const STEPS = [
   { name: 'tools', needs: 'tools/self.check.mjs', cmd: ['node', 'tools/self.check.mjs'] },
   { name: 'badges', needs: 'src/badges', cmd: ['node', 'tools/badges-check.mjs'] },
   { name: 'i18n', needs: 'src/i18n', cmd: ['node', 'tools/i18n-check.mjs'] },
+  { name: 'boundaries', needs: 'src/badges/themes', cmd: ['node', 'tools/boundaries-check.mjs'] },
   { name: 'assign', needs: 'src/lib/assign.check.ts', cmd: ['node', 'src/lib/assign.check.ts'] },
   // astro sync writes .astro/types.d.ts (git-ignored), which tsconfig needs on a fresh clone.
   { name: 'types', needs: 'src', cmd: ['sh', '-c', 'npx astro sync >/dev/null && npx tsc --noEmit -p .'] },
