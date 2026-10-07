@@ -35,6 +35,13 @@ try {
     'alone.mjs': [theme({ a: good }), 1],
     'unnamed.mjs': [theme({ a: good, b: { ...good, text: {} } }), 1],
   };
+  // An inactive theme without the active locale is valid (warning only) when checked with others.
+  writeFileSync(join(tmp, 'other.mjs'), theme({ a: { ...good, text: {} }, b: { ...good, text: {} } }));
+  writeFileSync(join(tmp, 'good2.mjs'), theme({ a: good, b: good }));
+  const both = run('tools/badges-check.mjs', join(tmp, 'other.mjs'), join(tmp, 'good2.mjs'));
+  assert.equal(both.status, 0, `badges-check should accept an unnamed inactive theme:\n${both.stdout}${both.stderr}`);
+  checks++;
+
   for (const [name, [src, status]] of Object.entries(cases)) {
     writeFileSync(join(tmp, name), src);
     const r = run('tools/badges-check.mjs', join(tmp, name));

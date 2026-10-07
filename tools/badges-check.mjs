@@ -54,9 +54,12 @@ for (const file of files) {
     if (!Number.isInteger(b.crownY) || b.crownY < 0 || b.crownY > 13) bad('`crownY` must be the first row of the head (0–13)');
 
     const text = b.text ?? {};
-    const want = config.locale ? [config.locale] : [];
+    // The active locale is required only in the active theme (or a theme checked on its own);
+    // a new language should not force translating themes nobody uses.
+    const active = files.length === 1 || file.endsWith(`/${config.badges}.mjs`);
+    const want = config.locale && active ? [config.locale] : [];
     for (const l of want) if (!text[l]?.name || !text[l]?.kind) bad(`text.${l} needs { name, kind } (active locale)`);
-    for (const l of locales) if (!want.includes(l) && !text[l]) warnings.push(`${file}: ${id} has no text.${l}`);
+    for (const l of new Set([...locales, config.locale].filter(Boolean))) if (!want.includes(l) && !text[l]) warnings.push(`${file}: ${id} has no text.${l}`);
 
     if (render && !errors.length) {
       for (const rarity of ['common', 'shiny', 'legendary']) {
