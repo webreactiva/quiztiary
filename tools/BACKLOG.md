@@ -1,7 +1,7 @@
 # Backlog
 
-- [ ] Astro + Node scaffold on the preguntario stack
-- [ ] `quiztiary.config.mjs`: every host choice in one file, secrets stay in `.env`
+- [x] Astro + Node scaffold on the preguntario stack
+- [x] `quiztiary.config.mjs`: every host choice in one file, secrets stay in `.env`
 - [ ] Badge engine (`src/badges/render.mjs`) split from theme data (`src/badges/themes/animals.mjs`)
 - [ ] i18n: `src/i18n/{es,en}.json` + `t()`, one active locale
 - [ ] Prize roll generic over any theme; `assign.check.ts` derives its thresholds from the theme
