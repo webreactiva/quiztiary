@@ -59,6 +59,8 @@ To use your own domain, a named tunnel or a deployment, set `PUBLIC_URL` in `.en
 - The server stores the question text and its badge. No IP, no browser fingerprint, no cookie.
 - Each question reaches the panel after a random delay.
 - Collections and "your questions" live only in each participant's browser (`localStorage`).
+- Pages make no third-party requests: the pixel font is served by the app, nothing loads from Google or a CDN. The gate fails if a page ever does.
+- Question ids are random, so they do not reveal the order questions arrived in.
 
 ## Before the event
 
