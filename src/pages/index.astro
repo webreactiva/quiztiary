@@ -104,7 +104,7 @@ import { MAX_LENGTH } from '../lib/limits.ts';
       let prizes: Prize[] = [];
       try { prizes = JSON.parse(localStorage.getItem(KEY) ?? '[]'); } catch {}
       // A collection from another theme (the host switched it) is ignored, not shown broken.
-      prizes = prizes.filter((p) => p.badge in BADGES);
+      prizes = prizes.filter((p) => p.badge in BADGES && p.rarity in RANK);
       const save = () => { try { localStorage.setItem(KEY, JSON.stringify(prizes)); } catch {} };
 
       // Your questions also live only in this browser; the server only says whether they are answered.
@@ -112,7 +112,7 @@ import { MAX_LENGTH } from '../lib/limits.ts';
       const MINE = `${config.slug}-mine`;
       let mine: Mine[] = [];
       try { mine = JSON.parse(localStorage.getItem(MINE) ?? '[]'); } catch {}
-      mine = mine.filter((q) => q.badge in BADGES);
+      mine = mine.filter((q) => q.badge in BADGES && q.rarity in RANK);
       const saveMine = () => { try { localStorage.setItem(MINE, JSON.stringify(mine)); } catch {} };
 
       function renderMine() {
@@ -177,7 +177,7 @@ import { MAX_LENGTH } from '../lib/limits.ts';
         $('grid').innerHTML = ids
           .map((id) => {
             const p = best(id);
-            if (!p) return `<div class="cell locked">${badgeSvg(id, { size: 96 })}<span>???</span></div>`;
+            if (!p) return `<div class="cell locked">${badgeSvg(id, { size: 96 })}<span>${t('home.locked')}</span></div>`;
             const n = prizes.filter((q) => q.badge === id).length;
             return `<div class="cell ${p.rarity}">${badgeSvg(id, { rarity: p.rarity, accessories: p.accessories, size: 96 })}<span>${badgeText(id).name}${n > 1 ? ` ×${n}` : ''}</span></div>`;
           })

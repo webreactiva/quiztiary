@@ -10,7 +10,8 @@
     "answered": "Respondida",
     "collection": "Tu colección",
     "privacy": "La colección se guarda solo en este navegador. Las preguntas llegan sin nombre y con un retraso aleatorio, así que nadie puede saber cuál es la tuya.",
-    "sendFailed": "No se ha podido enviar. Prueba otra vez."
+    "sendFailed": "No se ha podido enviar. Prueba otra vez.",
+    "locked": "???"
   },
   "panel": {
     "title": "Panel",
@@ -36,8 +37,14 @@
     "legendary": "Legendario"
   },
   "accessories": {
-    "crown": { "name": "Corona", "why": "Muchos tenían la misma duda" },
-    "bounce": { "name": "Animación", "why": "Trae un caso propio" }
+    "crown": {
+      "name": "Corona",
+      "why": "Muchos tenían la misma duda"
+    },
+    "bounce": {
+      "name": "Animación",
+      "why": "Trae un caso propio"
+    }
   },
   "gallery": {
     "title": "Galería de badges",

@@ -10,7 +10,8 @@
     "answered": "Answered",
     "collection": "Your collection",
     "privacy": "Your collection is stored only in this browser. Questions arrive without a name and after a random delay, so nobody can tell which one is yours.",
-    "sendFailed": "Could not send it. Please try again."
+    "sendFailed": "Could not send it. Please try again.",
+    "locked": "???"
   },
   "panel": {
     "title": "Panel",
@@ -36,8 +37,14 @@
     "legendary": "Legendary"
   },
   "accessories": {
-    "crown": { "name": "Crown", "why": "Many people had the same doubt" },
-    "bounce": { "name": "Animation", "why": "Brings a case of their own" }
+    "crown": {
+      "name": "Crown",
+      "why": "Many people had the same doubt"
+    },
+    "bounce": {
+      "name": "Animation",
+      "why": "Brings a case of their own"
+    }
   },
   "gallery": {
     "title": "Badge gallery",
