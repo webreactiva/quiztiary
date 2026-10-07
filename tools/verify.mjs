@@ -11,7 +11,8 @@ const STEPS = [
   { name: 'badges', needs: 'src/badges', cmd: ['node', 'tools/badges-check.mjs'] },
   { name: 'i18n', needs: 'src/i18n', cmd: ['node', 'tools/i18n-check.mjs'] },
   { name: 'assign', needs: 'src/lib/assign.check.ts', cmd: ['node', 'src/lib/assign.check.ts'] },
-  { name: 'types', needs: 'src', cmd: ['npx', 'tsc', '--noEmit', '-p', '.'] },
+  // astro sync writes .astro/types.d.ts (git-ignored), which tsconfig needs on a fresh clone.
+  { name: 'types', needs: 'src', cmd: ['sh', '-c', 'npx astro sync >/dev/null && npx tsc --noEmit -p .'] },
   { name: 'build', needs: 'astro.config.mjs', cmd: ['npx', 'astro', 'build'] },
   { name: 'smoke', needs: 'src/pages/api/questions.ts', cmd: ['node', 'tools/smoke.mjs'] },
   { name: 'ui', needs: 'src/pages/api/questions.ts', cmd: ['node', 'tools/ui.mjs'] },

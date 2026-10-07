@@ -57,6 +57,10 @@ try {
   assert.equal(i18n({ en: { a: 'x' }, es: { a: 'x' } }, "t('nope')"), 1, 'i18n-check catches an unknown key');
   checks += 4;
 
+  // The types step regenerates Astro's ambient types first: a fresh clone has no .astro/.
+  assert.match(verify, /astro sync[^']*tsc --noEmit/, 'types step must run astro sync before tsc');
+  checks++;
+
   // The types step really fails on a type error (astro build alone does not check types).
   const ts = mkdtempSync(join(tmp, 'ts-'));
   writeFileSync(join(ts, 'bad.ts'), "export const x: number = 'a';\n");
