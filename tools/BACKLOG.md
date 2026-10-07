@@ -11,5 +11,5 @@
 - [x] API routes and pages ported, every string through `t()`
 - [x] Badge gallery for any theme
 - [x] A second, small theme to prove themes are swappable
-- [ ] `quiztiary-setup` skill (skill-creator) that asks the host everything with defaults
+- [x] `quiztiary-setup` skill (skill-creator) that asks the host everything with defaults
 - [x] README
