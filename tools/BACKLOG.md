@@ -8,7 +8,7 @@
 - [x] Pluggable judges: `random` (no AI) and `jev`; adding one is one file + one map entry
 - [x] Storage with configurable DB path and release delay; long polling as in preguntario
 - [x] Public URL strategies: `PUBLIC_URL` env → Cloudflare quick tunnel → request origin
-- [ ] API routes and pages ported, every string through `t()`
+- [x] API routes and pages ported, every string through `t()`
 - [ ] Badge gallery for any theme
 - [ ] A second, small theme to prove themes are swappable
 - [ ] `quiztiary-setup` skill (skill-creator) that asks the host everything with defaults
