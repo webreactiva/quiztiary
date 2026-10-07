@@ -1,0 +1,46 @@
+{
+  "home": {
+    "tagline": "Ask anything you like and unlock the badges :)",
+    "label": "Your question",
+    "placeholder": "Write your question…",
+    "send": "Send question",
+    "sending": "Sending…",
+    "mine": "Your questions",
+    "pending": "Pending",
+    "answered": "Answered",
+    "collection": "Your collection",
+    "privacy": "Your collection is stored only in this browser. Questions arrive without a name and after a random delay, so nobody can tell which one is yours.",
+    "sendFailed": "Could not send it. Please try again."
+  },
+  "panel": {
+    "title": "Panel",
+    "askAt": "Ask at",
+    "password": "Panel password",
+    "enter": "Enter",
+    "delay": "Questions take between {min} and {max} seconds to show up.",
+    "reload": "Reload",
+    "empty": "No pending questions.",
+    "answered": "Answered",
+    "markAnswered": "Answered",
+    "undo": "Undo",
+    "wrongPassword": "Wrong password.",
+    "passwordChanged": "The password has changed. Please sign in again."
+  },
+  "api": {
+    "length": "Write a question of up to {max} characters.",
+    "rejected": "This question can't be published as it is. Could you rephrase it?"
+  },
+  "rarities": {
+    "common": "Common",
+    "shiny": "Shiny",
+    "legendary": "Legendary"
+  },
+  "accessories": {
+    "crown": { "name": "Crown", "why": "Many people had the same doubt" },
+    "bounce": { "name": "Animation", "why": "Brings a case of their own" }
+  },
+  "gallery": {
+    "title": "Badge gallery",
+    "summary": "{badges} badges × 3 rarities + 2 accessories."
+  }
+}

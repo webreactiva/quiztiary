@@ -1,0 +1,46 @@
+{
+  "home": {
+    "tagline": "Pregunta lo que quieras y desbloquea los badges :)",
+    "label": "Tu pregunta",
+    "placeholder": "Escribe tu pregunta…",
+    "send": "Enviar pregunta",
+    "sending": "Enviando…",
+    "mine": "Tus preguntas",
+    "pending": "Pendiente",
+    "answered": "Respondida",
+    "collection": "Tu colección",
+    "privacy": "La colección se guarda solo en este navegador. Las preguntas llegan sin nombre y con un retraso aleatorio, así que nadie puede saber cuál es la tuya.",
+    "sendFailed": "No se ha podido enviar. Prueba otra vez."
+  },
+  "panel": {
+    "title": "Panel",
+    "askAt": "Pregunta en",
+    "password": "Contraseña del panel",
+    "enter": "Entrar",
+    "delay": "Las preguntas tardan entre {min} y {max} segundos en aparecer.",
+    "reload": "Recargar",
+    "empty": "No hay preguntas pendientes.",
+    "answered": "Respondidas",
+    "markAnswered": "Respondida",
+    "undo": "Deshacer",
+    "wrongPassword": "Contraseña incorrecta.",
+    "passwordChanged": "La contraseña ha cambiado. Vuelve a entrar."
+  },
+  "api": {
+    "length": "Escribe una pregunta de hasta {max} caracteres.",
+    "rejected": "Esta pregunta no se puede publicar así. ¿La reformulas?"
+  },
+  "rarities": {
+    "common": "Común",
+    "shiny": "Brillante",
+    "legendary": "Legendario"
+  },
+  "accessories": {
+    "crown": { "name": "Corona", "why": "Muchos tenían la misma duda" },
+    "bounce": { "name": "Animación", "why": "Trae un caso propio" }
+  },
+  "gallery": {
+    "title": "Galería de badges",
+    "summary": "{badges} badges × 3 rarezas + 2 accesorios."
+  }
+}
