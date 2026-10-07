@@ -16,7 +16,16 @@ export const GET: APIRoute = async ({ request, url }) => {
 };
 
 export const POST: APIRoute = async ({ request }) => {
-  const { text, owned } = await request.json().catch(() => ({}));
+  // Read the body as text first so an oversized one is refused before parsing.
+  const raw = await request.text().catch(() => '');
+  if (raw.length > MAX_LENGTH * 8) return Response.json({ error: t('api.length', { max: MAX_LENGTH }) }, { status: 413 });
+  const { text, owned } = (() => {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
+  })();
   const clean = typeof text === 'string' ? text.trim() : '';
   // No minimum length: an AI judge rejects gibberish and non-questions through `unsafe`.
   if (!clean || clean.length > MAX_LENGTH) {
@@ -28,7 +37,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   // `owned` is only used for this roll: it is never stored.
   const ids = Object.keys(BADGES);
-  const prize = roll(j, ids, Array.isArray(owned) ? owned.filter((o) => ids.includes(o)) : []);
+  const prize = roll(j, ids, Array.isArray(owned) ? owned.slice(0, ids.length).filter((o) => ids.includes(o)) : []);
   const id = addQuestion(clean, prize);
   return Response.json({ id, ...prize });
 };
