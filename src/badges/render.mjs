@@ -25,7 +25,7 @@ const AURA = Array.from({ length: 400 }, (_, i) => {
   return `<rect x="${x}" y="${y}" width="1" height="1" fill="${AURA_BANDS.find(([r]) => d < r)[1]}"/>`;
 }).join('');
 
-const rects = (rows, palette, ox = 0, oy = 0) =>
+export const rects = (rows, palette, ox = 0, oy = 0) =>
   rows
     .flatMap((row, y) =>
       [...row].map((c, x) =>
