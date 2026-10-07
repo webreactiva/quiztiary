@@ -64,6 +64,22 @@ try {
   assert.notEqual(spawnSync('npx', ['tsc', '-p', ts]).status, 0, 'tsc accepts a type error');
   checks++;
 
+  // The browser driver reports script errors and failed requests (when Chrome is available).
+  const { launch } = await import('./lib/browser.mjs');
+  const page = await launch();
+  if (page) {
+    try {
+      await page.goto(`data:text/html,<img src="http://127.0.0.1:9/missing.png"><script>throw new Error('boom')</script>`);
+      await page.waitFor(() => true);
+      await new Promise((r) => setTimeout(r, 300));
+      assert.ok(page.errors.some((e) => e.includes('boom')), 'browser misses a thrown error');
+      assert.ok(page.errors.some((e) => e.includes('missing.png')), 'browser misses a failed request');
+      checks += 2;
+    } finally {
+      page.close();
+    }
+  }
+
   console.log(`ok: ${checks} self-checks`);
 } finally {
   rmSync(tmp, { recursive: true, force: true });

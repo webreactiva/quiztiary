@@ -2,58 +2,21 @@
 // whole flow over HTTP: ask, get a badge, panel auth, panel list, mark answered, status, public URL.
 // Runs with no AI key and no release delay, so it is fast and needs no network.
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
-import { createServer } from 'node:net';
-import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { startServer } from './lib/server.mjs';
 
 const config = (await import(pathToFileURL(resolve('quiztiary.config.mjs')))).default;
 const theme = (await import(pathToFileURL(resolve(`src/badges/themes/${config.badges}.mjs`)))).default;
 
-const port = await new Promise((ok) => {
-  const s = createServer().listen(0, '127.0.0.1', () => {
-    const { port } = s.address();
-    s.close(() => ok(port));
-  });
-});
-const dir = mkdtempSync(join(tmpdir(), 'quiztiary-smoke-'));
-const PASSWORD = 'smoke-secret';
-const server = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', 'dist/server/entry.mjs'], {
-  env: {
-    ...process.env,
-    HOST: '127.0.0.1',
-    PORT: String(port),
-    PANEL_PASSWORD: PASSWORD,
-    DB_PATH: join(dir, 'smoke.db'),
-    RELEASE_DELAY: '0',
-    JEV_API_KEY: '',
-    PUBLIC_URL: '',
-  },
-  stdio: ['ignore', 'pipe', 'pipe'],
-});
-let output = '';
-server.stdout.on('data', (d) => (output += d));
-server.stderr.on('data', (d) => (output += d));
-
-const base = `http://127.0.0.1:${port}`;
-const admin = { 'x-panel-password': PASSWORD, 'content-type': 'application/json' };
+const server = await startServer({ password: 'smoke-secret' });
+const base = server.base;
+const admin = { 'x-panel-password': server.password, 'content-type': 'application/json' };
 const json = { 'content-type': 'application/json' };
-const step = (name) => (current = name);
 let current = 'boot';
+const step = (name) => (current = name);
 
 try {
-  for (let i = 0; ; i++) {
-    try {
-      await fetch(base);
-      break;
-    } catch {
-      if (i > 100 || server.exitCode !== null) throw new Error('server did not start');
-      await new Promise((r) => setTimeout(r, 100));
-    }
-  }
-
   step('GET /');
   let res = await fetch(base);
   assert.equal(res.status, 200);
@@ -108,9 +71,8 @@ try {
 
   console.log(`ok: ${config.locale} · ${config.ai} · ${config.badges} · got ${prize.rarity} ${prize.badge}`);
 } catch (e) {
-  console.error(`smoke failed at "${current}": ${e.message}\n--- server output ---\n${output}`);
+  console.error(`smoke failed at "${current}": ${e.message}\n--- server output ---\n${server.output()}`);
   process.exitCode = 1;
 } finally {
-  server.kill();
-  rmSync(dir, { recursive: true, force: true });
+  server.stop();
 }
