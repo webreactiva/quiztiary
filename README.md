@@ -140,6 +140,10 @@ Yes. A judge is one file with a documented contract, and the setup skill can wri
 
 Quiztiary is developed by an AI agent working in a self-improving loop (see [`AGENTS.md`](AGENTS.md) and the `build-loop` skill). `npm run verify` is the gate every commit passes, enforced by a git pre-commit hook: tool self-checks, badge themes, locales, code boundaries, the setup script, unit checks, types, build, an HTTP smoke test and a headless Chrome round trip. When something slips past the gate, the tool is fixed first, and [`tools/LOG.md`](tools/LOG.md) records why.
 
+## License
+
+[MIT](LICENSE). The pixel font, Pixelify Sans, is under the SIL Open Font License 1.1.
+
 ## Who's behind it
 
 I'm **Dani Primo**. I've been a web developer for many years, and these days I spend a good part of each day with AI coding agents, figuring out which tools are worth it.
