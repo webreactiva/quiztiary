@@ -17,7 +17,7 @@ const CANDIDATES = [
 ];
 export const chromePath = () => CANDIDATES.find((p) => p && existsSync(p));
 
-export async function launch({ width = 420, height = 900 } = {}) {
+export async function launch({ width = 420, height = 900, scale = 1 } = {}) {
   const bin = chromePath();
   if (!bin) return null;
   const port = await freePort();
@@ -27,6 +27,7 @@ export async function launch({ width = 420, height = 900 } = {}) {
     `--remote-debugging-port=${port}`,
     `--user-data-dir=${profile}`,
     `--window-size=${width},${height}`,
+    `--force-device-scale-factor=${scale}`, // 2 for crisp screenshots
     '--no-first-run',
     '--no-default-browser-check',
     '--disable-gpu',
