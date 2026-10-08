@@ -32,6 +32,7 @@ Round 2, the game:
 |---|---|---|
 | Badge theme | current `badges` | List bundled themes with their badge names. "Draw a new theme" is a real option: see "New theme". |
 | How badges are chosen | `random` | `random`: pure chance, no AI, no key. `jev`: an AI reads each question and tilts the odds (it also filters spam and non-questions); needs a free key from https://console.typesafe.ai/keys. Another AI: see "Another AI". |
+| What the AI rejects (only when the judge is not `random`) | the judge's own filter | Each judge ships a filter worded for its model: read its `filter` export in `src/lib/judges/<ai>.ts` and show it in plain words (for Jev: insults, personal data, spam, gibberish, and things that are not questions like "ok" or a greeting). Offer: keep it; stricter, e.g. only questions about the session's topic (write `filter.prompt` as one English sentence describing what to reject, like "The text is not about cooking, food or recipes."); or more lenient (raise `filter.threshold` toward 1; 1 rejects nothing). Tested with Jev: a topic prompt rejects off-topic questions and keeps on-topic ones. |
 | Anonymity delay | `[20, 90]` | Seconds before a question reaches the panel, so timing does not reveal the author. Fewer than 8 people → suggest `[30, 120]`. |
 
 Round 3, reach and look (skip what the host does not care about by accepting defaults):
@@ -67,7 +68,7 @@ A judge is one file, `src/lib/judges/<name>.ts`, exporting `judge` with the cont
 Write everything through the bundled script, which validates the answers and rewrites the config with its comments:
 
 ```bash
-node .claude/skills/quiztiary-setup/scripts/apply.mjs '{"name":"Python 101 Q&A","slug":"python-101","locale":"es","audience":"students in an intro to Python course","ai":"random","badges":"animals","releaseDelay":[20,90],"publicUrl":"cloudflare","colors":{"accent":"#2b7bd9","light":{"bg":"#eef4fb"}},"env":{"PANEL_PASSWORD":"…"}}'
+node .claude/skills/quiztiary-setup/scripts/apply.mjs '{"name":"Python 101 Q&A","slug":"python-101","locale":"es","audience":"students in an intro to Python course","ai":"random","badges":"animals","releaseDelay":[20,90],"publicUrl":"cloudflare","filter":{"prompt":null,"threshold":null},"colors":{"accent":"#2b7bd9","light":{"bg":"#eef4fb"}},"env":{"PANEL_PASSWORD":"…"}}'
 ```
 
 Omitted fields keep their current value, also inside `colors.light` and `colors.dark`. `slug` is the name in lowercase with dashes. `env` keys are merged into `.env` (created from `.env.example` if missing). If the script reports errors, fix the answer or create the missing file, then run it again.

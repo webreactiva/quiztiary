@@ -10,7 +10,8 @@ const answers = JSON.parse(process.argv[2] ?? '{}');
 const current = (await import(pathToFileURL(resolve('quiztiary.config.mjs')))).default;
 const ac = answers.colors ?? {};
 const colors = { ...current.colors, ...ac, light: { ...current.colors.light, ...ac.light }, dark: { ...current.colors.dark, ...ac.dark } };
-const c = { ...current, ...answers, colors };
+const filter = { prompt: null, threshold: null, ...current.filter, ...answers.filter };
+const c = { ...current, ...answers, colors, filter };
 delete c.env;
 
 const errors = [];
@@ -31,6 +32,8 @@ for (const mode of ['light', 'dark']) {
   for (const k of ['bg', 'text', 'muted', 'card', 'cardText', 'line']) need(HEX.test(c.colors[mode][k]), `colors.${mode}.${k} must be #rrggbb`);
 }
 need(typeof c.audience === 'string' && c.audience.trim(), 'audience must not be empty');
+need(c.filter.prompt === null || (typeof c.filter.prompt === 'string' && c.filter.prompt.trim()), 'filter.prompt must be null (judge default) or a non-empty English sentence');
+need(c.filter.threshold === null || (typeof c.filter.threshold === 'number' && c.filter.threshold >= 0 && c.filter.threshold <= 1), 'filter.threshold must be null (judge default) or a number from 0 to 1');
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
@@ -72,6 +75,10 @@ export default {
   audience: ${q(c.audience.trim())},
   // How badges are rolled: a file in src/lib/judges/. 'random' needs no AI; 'jev' needs JEV_API_KEY.
   ai: ${q(c.ai)},
+  // What an AI judge rejects as not a question (spam, insults, greetings, gibberish…). Each judge
+  // ships wording tuned to its model; override it here. \`prompt\`: in English, what to reject.
+  // \`threshold\`: 0–1, reject above it (1 rejects nothing). null keeps the judge's default.
+  filter: { prompt: ${c.filter.prompt === null ? 'null' : q(c.filter.prompt.trim())}, threshold: ${c.filter.threshold ?? 'null'} },
   // Badge theme: a file in src/badges/themes/.
   badges: ${q(c.badges)},
   // Seconds a question waits, at random within this range, before it reaches the panel.
@@ -110,4 +117,4 @@ if (Object.keys(env).length) {
   writeFileSync('.env', lines.join('\n'));
 }
 
-console.log(`ok: ${c.name} · ${c.locale} · ${c.ai} · ${c.badges} · delay ${c.releaseDelay.join('-')}s · ${c.publicUrl}${Object.keys(env).length ? ` · .env: ${Object.keys(env).join(', ')}` : ''}`);
+console.log(`ok: ${c.name} · ${c.locale} · ${c.ai}${c.filter.prompt || c.filter.threshold !== null ? ' (custom filter)' : ''} · ${c.badges} · delay ${c.releaseDelay.join('-')}s · ${c.publicUrl}${Object.keys(env).length ? ` · .env: ${Object.keys(env).join(', ')}` : ''}`);
