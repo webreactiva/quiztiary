@@ -62,7 +62,12 @@ try {
   assert.equal(i18n({ en: { a: 'x', b: 'y' }, es: { a: 'x' } }, ''), 1, 'i18n-check catches a missing key');
   assert.equal(i18n({ en: { a: 'Hi {n}' }, es: { a: 'Hola {m}' } }, ''), 1, 'i18n-check catches placeholder drift');
   assert.equal(i18n({ en: { a: 'x' }, es: { a: 'x' } }, "t('nope')"), 1, 'i18n-check catches an unknown key');
-  checks += 4;
+  const locales2 = { en: { a: 'x' }, es: { a: 'x' } };
+  assert.equal(i18n(locales2, "---\nconst x = 1;\n---\n<h1>{t('a')}</h1><button title={t('a')}>🔄</button><style>p{color:red}</style>"), 0, 'i18n-check accepts translated markup and bare symbols');
+  assert.equal(i18n(locales2, '<p>Hello there</p>'), 1, 'i18n-check misses literal text in markup');
+  assert.equal(i18n(locales2, '<textarea placeholder="Write here"></textarea>'), 1, 'i18n-check misses a literal placeholder');
+  assert.equal(i18n(locales2, '<script>el.innerHTML = `<span>Locked</span>`;</script>'), 1, 'i18n-check misses literal text built by a script');
+  checks += 8;
 
   // boundaries-check rejects a badge id outside the themes and an AI SDK outside the judges.
   const boundaries = (file, code) => {

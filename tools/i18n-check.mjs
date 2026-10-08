@@ -48,6 +48,32 @@ for (const file of walk(src)) {
   }
 }
 
+// Text a participant or host can read must come from the locale, not be typed into a page:
+// letters between tags in .astro markup, in HTML built inside client scripts, or in
+// user-facing attributes. Symbols and emoji (×, 🔄, ?) are fine, they have no language.
+const LETTERS = /\p{L}/u;
+const stripExpr = (s) => {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(/\{[^{}]*\}/g, '');
+  } while (s !== prev);
+  return s;
+};
+for (const file of walk(src).filter((f) => f.endsWith('.astro'))) {
+  let code = readFileSync(file, 'utf8').replace(/^---[\s\S]*?\n---/, '').replace(/<style[\s\S]*?<\/style>/g, '');
+  const scripts = [...code.matchAll(/<script[\s\S]*?<\/script>/g)].map((m) => m[0]);
+  code = code.replace(/<script[\s\S]*?<\/script>/g, '');
+  const markup = stripExpr(code);
+  for (const [, text] of markup.matchAll(/>([^<>]+)</g)) if (LETTERS.test(text)) errors.push(`${file}: literal text "${text.trim()}" in markup, use t()`);
+  for (const [, attr, text] of markup.matchAll(/\b(placeholder|title|aria-label|alt|label)="([^"]*)"/g)) if (LETTERS.test(text)) errors.push(`${file}: literal ${attr}="${text}", use t()`);
+  for (const script of scripts) {
+    for (const [, tpl] of script.matchAll(/`([^`]*)`/g)) {
+      for (const [, text] of tpl.replace(/\$\{[^}]*\}/g, '').matchAll(/>([^<>]+)</g)) if (LETTERS.test(text)) errors.push(`${file}: literal text "${text.trim()}" in HTML built by a script, use t()`);
+    }
+  }
+}
+
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
