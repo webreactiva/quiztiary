@@ -50,8 +50,10 @@ export async function launch({ width = 420, height = 900, scale = 1 } = {}) {
   let id = 0;
   const pending = new Map();
   const errors = [];
+  const listeners = new Map();
   ws.onmessage = ({ data }) => {
     const msg = JSON.parse(data);
+    for (const fn of listeners.get(msg.method) ?? []) fn(msg.params);
     if (msg.id && pending.has(msg.id)) {
       const { ok, ko } = pending.get(msg.id);
       pending.delete(msg.id);
@@ -80,6 +82,11 @@ export async function launch({ width = 420, height = 900, scale = 1 } = {}) {
 
   const page = {
     errors,
+    /** Raw DevTools protocol access, for what the helpers below do not cover (screencast, input…). */
+    send,
+    on(method, fn) {
+      listeners.set(method, [...(listeners.get(method) ?? []), fn]);
+    },
     /** Runs `fn` (a function or its source) in the page and returns its JSON result. */
     async eval(fn, ...args) {
       const src = `(${fn})(...${JSON.stringify(args)})`;
