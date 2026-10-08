@@ -6,8 +6,10 @@ Quiztiary is a free, open-source, self-hosted Q&A tool for live sessions. People
 
 > Used in the [Web Reactiva](https://www.webreactiva.com) community to get people asking during live sessions.
 
-<!-- Demo video: paste the GitHub user-attachments URL on the next line (uploaded through the GitHub editor, not committed). -->
-<!-- VIDEO_URL -->
+
+https://github.com/user-attachments/assets/781b6d12-8708-486c-b051-cd9afb09bbf2
+
+
 
 <details>
 <summary><strong>The same idea, in your language</strong></summary>
