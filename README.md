@@ -15,7 +15,7 @@ npm run build && npm start    # http://localhost:4321, panel at /panel
 npm run tunnel                # second terminal: public URL through Cloudflare
 ```
 
-Or let Claude Code do it: open the project and ask to set up Quiztiary. The `quiztiary-setup` skill asks you everything (each question has a default), writes the config and checks that it all works.
+Or let your AI agent do it: open the project and ask to set up Quiztiary. The `quiztiary-setup` skill asks you everything (each question has a default), writes the config and checks that it all works.
 
 ## What you can customize
 
@@ -30,7 +30,7 @@ Everything lives in [`quiztiary.config.mjs`](quiztiary.config.mjs); secrets live
 | `badges` | `animals` | The pixel-art theme: `src/badges/themes/` (`animals`, `space`) |
 | `releaseDelay` | `[20, 90]` | Seconds before a question reaches the panel, so timing does not reveal its author |
 | `publicUrl` | `cloudflare` | Where the panel QR points: `src/lib/public-url.ts` |
-| `colors` | accent `#d9542b`, gold `#e0a800` | Interface and favicon |
+| `colors` | preguntario's warm palette | Accent, button text, gold, success, and full `light` / `dark` palettes: every interface colour and the favicon |
 
 ### Badges
 
