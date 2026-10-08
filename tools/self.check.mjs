@@ -95,6 +95,11 @@ try {
   assert.equal(run('tools/run-checks.mjs', cdir).status, 1, 'run-checks misses a failing check');
   checks += 2;
 
+  // setup-check fails when the apply script drops a config line (here: a script that writes nothing).
+  writeFileSync(join(tmp, 'apply-lossy.mjs'), "import { writeFileSync } from 'node:fs'; writeFileSync('quiztiary.config.mjs', 'export default {};\\n');\n");
+  assert.equal(run('tools/setup-check.mjs', join(tmp, 'apply-lossy.mjs')).status, 1, 'setup-check misses a lossy apply script');
+  checks++;
+
   // The types step regenerates Astro's ambient types first: a fresh clone has no .astro/.
   assert.match(verify, /astro sync[^']*tsc --noEmit/, 'types step must run astro sync before tsc');
   checks++;

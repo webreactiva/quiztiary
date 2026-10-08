@@ -20,7 +20,7 @@ Anonymous questions for live online sessions, with a host panel and pixel-art ba
 
 ## The gate
 
-`npm run verify` must be green before every commit; a git pre-commit hook enforces it. Steps: `tools` (the checkers reject known-bad fixtures), `badges`, `i18n` (keys, placeholders, no literal text in pages), `boundaries` (badge ids only in themes, AI SDKs only in judges, no hex colours in pages or styles), `checks` (every `src/**/*.check.ts`: fair odds for every theme, judge filter resolution), `types`, `build`, `smoke` (HTTP flow, anonymity, limits, no secrets in the client bundle), `ui` (headless Chrome round trip, no third-party requests, markup rendered as text).
+`npm run verify` must be green before every commit; a git pre-commit hook enforces it. Steps: `tools` (the checkers reject known-bad fixtures), `badges`, `i18n` (keys, placeholders, no literal text in pages), `boundaries` (badge ids only in themes, AI SDKs only in judges, no hex colours in pages or styles), `setup` (the setup skill's apply script round-trips the config), `checks` (every `src/**/*.check.ts`: fair odds for every theme, judge filter resolution), `types`, `build`, `smoke` (HTTP flow, anonymity, limits, no secrets in the client bundle), `ui` (headless Chrome round trip, no third-party requests, markup rendered as text).
 
 Run one step with `npm run verify <step>`.
 

@@ -9,7 +9,7 @@ These tools are for you, the agent building Quiztiary. Hosts never run them by h
 
 | Tool | What it tells you |
 |------|-------------------|
-| `npm run verify [step…]` | The gate. Steps: `tools`, `badges`, `i18n`, `boundaries`, `checks`, `types`, `build`, `smoke`, `ui`. Stops at the first failure. |
+| `npm run verify [step…]` | The gate. Steps: `tools`, `badges`, `i18n`, `boundaries`, `setup`, `checks`, `types`, `build`, `smoke`, `ui`. Stops at the first failure. |
 | `tools/smoke.mjs` | Boots `dist/` with a throwaway DB, no AI key, no release delay, and walks ask → badge → panel → answered → status. |
 | `tools/ui.mjs` | Drives the real pages in headless Chrome (participant asks, host answers, participant sees it). Fails on script errors and failed requests. Screenshots in `tools/.shots/`: look at them. |
 | `tools/lib/browser.mjs` | The tiny CDP driver behind `ui` (`launch`, `goto`, `eval`, `waitFor`, `shot`, `errors`). Use it for one-off checks too. |
