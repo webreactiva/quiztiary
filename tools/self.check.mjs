@@ -82,7 +82,9 @@ try {
   assert.equal(boundaries('lib/judges/x.ts', "import OpenAI from 'openai';"), 0, 'an AI SDK inside judges is fine');
   assert.equal(boundaries('pages/x.astro', "const b = 'zebra';"), 1, 'boundaries-check misses a badge id in a page');
   assert.equal(boundaries('lib/x.ts', "import OpenAI from 'openai';"), 1, 'boundaries-check misses an AI SDK outside judges');
-  checks += 3;
+  assert.equal(boundaries('pages/x.astro', '<style>p { color: #2b2118; }</style>'), 1, 'boundaries-check misses a hex colour in a page');
+  assert.equal(boundaries('styles.css', 'p { color: var(--fg); } a { color: white; }'), 0, 'variables and named colours are fine in styles.css');
+  checks += 5;
 
   // The types step regenerates Astro's ambient types first: a fresh clone has no .astro/.
   assert.match(verify, /astro sync[^']*tsc --noEmit/, 'types step must run astro sync before tsc');
