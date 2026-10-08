@@ -53,7 +53,7 @@ import { releaseDelay } from '../lib/db.ts';
       }
       button.icon:hover { opacity: 1; }
       button.icon:active { transform: rotate(90deg); box-shadow: none; }
-      #qr { background: #fff; padding: 8px; border-radius: 6px; line-height: 0; }
+      #qr { background: white; /* QR codes need pure white to scan */ padding: 8px; border-radius: 6px; line-height: 0; }
       #qr svg { width: 160px; height: 160px; image-rendering: auto; }
       #login { margin-top: 32px; }
       #login .row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
@@ -63,7 +63,7 @@ import { releaseDelay } from '../lib/db.ts';
         border: 2px solid var(--fg);
         border-radius: 6px;
         background: var(--card);
-        color: #2b2118;
+        color: var(--card-fg);
         min-width: 0;
         flex: 1 1 220px;
         max-width: 320px;
@@ -75,7 +75,7 @@ import { releaseDelay } from '../lib/db.ts';
         gap: 16px;
         align-items: center;
         background: var(--card);
-        color: #2b2118;
+        color: var(--card-fg);
         border: 2px solid var(--line);
         border-radius: 6px;
         padding: 12px 20px 12px 12px;

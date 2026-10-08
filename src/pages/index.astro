@@ -42,7 +42,7 @@ import { MAX_LENGTH } from '../lib/limits.ts';
         border: 2px solid var(--fg);
         border-radius: 6px;
         background: var(--card);
-        color: #2b2118;
+        color: var(--card-fg);
         resize: vertical;
         margin-top: 16px;
       }
@@ -61,12 +61,12 @@ import { MAX_LENGTH } from '../lib/limits.ts';
         border-radius: 6px;
         padding: 8px;
         text-align: center;
-        color: #2b2118;
+        color: var(--card-fg);
         font-size: 14px;
       }
       .cell svg { width: 100%; height: auto; }
       .cell.locked svg { filter: brightness(0); opacity: .15; }
-      .cell.locked span { color: #b0a493; }
+      .cell.locked span { color: var(--locked); }
       .cell.shiny { border-color: var(--gold); }
       .cell.legendary { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold); }
       .small { font-size: 14px; margin-top: 16px; }
@@ -78,7 +78,7 @@ import { MAX_LENGTH } from '../lib/limits.ts';
         gap: 12px;
         align-items: center;
         background: var(--card);
-        color: #2b2118;
+        color: var(--card-fg);
         border: 2px solid var(--line);
         border-radius: 6px;
         padding: 8px 12px;
@@ -86,8 +86,8 @@ import { MAX_LENGTH } from '../lib/limits.ts';
       }
       #mine-list svg { flex: none; }
       #mine-list .q { flex: 1; overflow-wrap: anywhere; }
-      .badge { flex: none; font-size: 13px; padding: 2px 10px; border-radius: 99px; background: #efe6d8; }
-      .badge.done { background: #d4f0cd; color: #1f5c17; }
+      .badge { flex: none; font-size: 13px; padding: 2px 10px; border-radius: 99px; background: var(--chip); }
+      .badge.done { background: var(--success-bg); color: var(--success); }
     </style>
 
     <script>

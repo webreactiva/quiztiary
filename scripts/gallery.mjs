@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import config from '../quiztiary.config.mjs';
 import { RARITIES, svg } from '../src/badges/render.mjs';
+import { paletteCss } from '../src/lib/palette.mjs';
 
 const name = process.argv[2] ?? config.badges;
 const theme = (await import(pathToFileURL(resolve(`src/badges/themes/${name}.mjs`)))).default;
@@ -36,8 +37,7 @@ writeFileSync(
 <html lang="${config.locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${theme.name} · ${m.gallery.title}</title>
 <style>
-  :root { --bg: #f4efe6; --fg: #2b2118; --card: #fffaf2; --line: #e2d6c3; --gold: ${config.colors.gold}; }
-  @media (prefers-color-scheme: dark) { :root { --bg: #17140f; --fg: #efe6d8; --line: #3a3127; } }
+  ${paletteCss(config.colors)}
   body { margin: 0; padding: 24px 16px; background: var(--bg); color: var(--fg); font: 15px/1.4 ui-monospace, Menlo, monospace; }
   h1 { margin: 0 0 4px; } body > p { margin: 0 0 24px; opacity: .7; }
   h2 { font-size: 16px; margin: 24px 0 4px; } h2 small { font-weight: normal; opacity: .6; margin-left: 8px; }
@@ -46,7 +46,7 @@ writeFileSync(
   figure { margin: 0; padding: 10px; background: var(--card); border: 2px solid var(--line); border-radius: 6px; text-align: center; }
   figure.shiny { border-color: var(--gold); }
   figure.legendary { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold), 0 0 18px #ffd54a88; }
-  figcaption { color: #2b2118; font-size: 12px; opacity: .7; margin-top: 4px; }
+  figcaption { color: var(--card-fg); font-size: 12px; opacity: .7; margin-top: 4px; }
   svg { display: block; image-rendering: pixelated; }
 </style></head><body>
 <h1>${theme.name}</h1>
