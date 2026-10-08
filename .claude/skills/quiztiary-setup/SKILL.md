@@ -39,7 +39,7 @@ Round 3, reach and look (skip what the host does not care about by accepting def
 | Question | Default | Notes |
 |---|---|---|
 | How participants reach it | Cloudflare quick tunnel (`cloudflare`) | Runs on their computer, free, no account; the URL changes every time the tunnel opens. Their own URL (domain, deploy, named tunnel) → `publicUrl: 'origin'` plus `PUBLIC_URL` in `.env`. |
-| Accent colour | current `colors.accent` | Accept a hex code or a colour name (convert it). Keep enough contrast with white text: buttons are white on accent. |
+| Colours | keep current palette | Most hosts only change `colors.accent` (buttons, links, favicon): accept a hex code or a colour name and convert it. A full rebrand can also set `onAccent`, `gold`, `success` and the `light` / `dark` palettes (`bg`, `text`, `muted`, `card`, `cardText`, `line`). The apply script warns on any text below 4.5:1 contrast; pass the warning on with a darker shade that would pass. |
 
 ## 3. Custom paths (only when chosen)
 
@@ -67,10 +67,10 @@ A judge is one file, `src/lib/judges/<name>.ts`, exporting `judge` with the cont
 Write everything through the bundled script, which validates the answers and rewrites the config with its comments:
 
 ```bash
-node .claude/skills/quiztiary-setup/scripts/apply.mjs '{"name":"Python 101 Q&A","slug":"python-101","locale":"es","audience":"students in an intro to Python course","ai":"random","badges":"animals","releaseDelay":[20,90],"publicUrl":"cloudflare","colors":{"accent":"#2b7bd9"},"env":{"PANEL_PASSWORD":"…"}}'
+node .claude/skills/quiztiary-setup/scripts/apply.mjs '{"name":"Python 101 Q&A","slug":"python-101","locale":"es","audience":"students in an intro to Python course","ai":"random","badges":"animals","releaseDelay":[20,90],"publicUrl":"cloudflare","colors":{"accent":"#2b7bd9","light":{"bg":"#eef4fb"}},"env":{"PANEL_PASSWORD":"…"}}'
 ```
 
-Omitted fields keep their current value. `slug` is the name in lowercase with dashes. `env` keys are merged into `.env` (created from `.env.example` if missing). If the script reports errors, fix the answer or create the missing file, then run it again.
+Omitted fields keep their current value, also inside `colors.light` and `colors.dark`. `slug` is the name in lowercase with dashes. `env` keys are merged into `.env` (created from `.env.example` if missing). If the script reports errors, fix the answer or create the missing file, then run it again.
 
 Then run `npm install` if `node_modules` is missing, and `npm run verify`. It builds the app, walks the whole flow over HTTP and drives the real pages in headless Chrome, in the configured language and theme. If it fails, fix the cause; do not hand over a red instance.
 

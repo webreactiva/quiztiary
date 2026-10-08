@@ -8,7 +8,9 @@ import { pathToFileURL } from 'node:url';
 
 const answers = JSON.parse(process.argv[2] ?? '{}');
 const current = (await import(pathToFileURL(resolve('quiztiary.config.mjs')))).default;
-const c = { ...current, ...answers, colors: { ...current.colors, ...answers.colors } };
+const ac = answers.colors ?? {};
+const colors = { ...current.colors, ...ac, light: { ...current.colors.light, ...ac.light }, dark: { ...current.colors.dark, ...ac.dark } };
+const c = { ...current, ...answers, colors };
 delete c.env;
 
 const errors = [];
@@ -23,22 +25,37 @@ need(Array.isArray(c.releaseDelay) && c.releaseDelay.length === 2 && c.releaseDe
 // so a strategy a host adds is accepted here too.
 const strategies = [...readFileSync('src/lib/public-url.ts', 'utf8').matchAll(/^ {2}(\w+): async/gm)].map((m) => m[1]);
 need(strategies.includes(c.publicUrl), `publicUrl must be one of ${strategies.join(', ')} (a fixed URL goes in env.PUBLIC_URL)`);
-for (const k of ['accent', 'gold']) need(/^#[0-9a-f]{6}$/i.test(c.colors[k]), `colors.${k} must be #rrggbb`);
+const HEX = /^#[0-9a-f]{6}$/i;
+for (const k of ['accent', 'onAccent', 'gold', 'success']) need(HEX.test(c.colors[k]), `colors.${k} must be #rrggbb`);
+for (const mode of ['light', 'dark']) {
+  for (const k of ['bg', 'text', 'muted', 'card', 'cardText', 'line']) need(HEX.test(c.colors[mode][k]), `colors.${mode}.${k} must be #rrggbb`);
+}
 need(typeof c.audience === 'string' && c.audience.trim(), 'audience must not be empty');
 if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
 }
 
-// Buttons are white text on the accent. WCAG asks 4.5:1 for normal text; warn, the host decides.
+// WCAG asks 4.5:1 for normal text. Warn, the host decides.
 const lum = (hex) =>
   [1, 3, 5]
     .map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
     .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
     .reduce((s, v, i) => s + v * [0.2126, 0.7152, 0.0722][i], 0);
-const contrast = 1.05 / (lum(c.colors.accent) + 0.05);
-if (contrast < 4.5) console.warn(`warn: white on ${c.colors.accent} is ${contrast.toFixed(2)}:1, below 4.5:1; a darker shade of it reads better on buttons`);
+const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+const pairs = [
+  ['button text (onAccent on accent)', c.colors.onAccent, c.colors.accent],
+  ['card text (light)', c.colors.light.cardText, c.colors.light.card],
+  ['card text (dark)', c.colors.dark.cardText, c.colors.dark.card],
+  ['page text (light)', c.colors.light.text, c.colors.light.bg],
+  ['page text (dark)', c.colors.dark.text, c.colors.dark.bg],
+];
+for (const [what, fg, bg] of pairs) {
+  const r = ratio(fg, bg);
+  if (r < 4.5) console.warn(`warn: ${what} ${fg} on ${bg} is ${r.toFixed(2)}:1, below 4.5:1`);
+}
 
+const pal = (p) => `{ ${['bg', 'text', 'muted', 'card', 'cardText', 'line'].map((k) => `${k}: ${q(p[k])}`).join(', ')} }`;
 const q = (s) => `'${String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 writeFileSync(
   'quiztiary.config.mjs',
@@ -63,8 +80,16 @@ export default {
   // Where the panel QR points: 'cloudflare' reads the quick tunnel URL from cloudflared,
   // 'origin' uses the address the panel is opened from. PUBLIC_URL in .env always wins.
   publicUrl: ${q(c.publicUrl)},
-  // Interface colours. Badges keep their own palettes.
-  colors: { accent: ${q(c.colors.accent)}, gold: ${q(c.colors.gold)} },
+  // Interface colours. Badges keep their own palettes. \`light\` and \`dark\` follow the visitor's
+  // system setting; cards stay light in both, so \`cardText\` is usually the same dark ink.
+  colors: {
+    accent: ${q(c.colors.accent)}, // buttons, links, the favicon
+    onAccent: ${q(c.colors.onAccent)}, // text on buttons
+    gold: ${q(c.colors.gold)}, // shiny and legendary borders
+    success: ${q(c.colors.success)}, // the "answered" tag
+    light: ${pal(c.colors.light)},
+    dark: ${pal(c.colors.dark)},
+  },
 };
 `,
 );
