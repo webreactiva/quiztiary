@@ -11,6 +11,10 @@ export default {
   audience: 'participants in a live online session',
   // How badges are rolled: a file in src/lib/judges/. 'random' needs no AI; 'jev' needs JEV_API_KEY.
   ai: 'random',
+  // What an AI judge rejects as not a question (spam, insults, greetings, gibberish…). Each judge
+  // ships wording tuned to its model; override it here. `prompt`: in English, what to reject.
+  // `threshold`: 0–1, reject above it (1 rejects nothing). null keeps the judge's default.
+  filter: { prompt: null, threshold: null },
   // Badge theme: a file in src/badges/themes/.
   badges: 'animals',
   // Seconds a question waits, at random within this range, before it reaches the panel.

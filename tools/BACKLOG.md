@@ -16,4 +16,4 @@
 
 ## Next
 
-- [ ] Configurable question filter per judge. Filtering non-questions (the `unsafe` score) depends on prompt wording that will need tuning, and that wording belongs to each judge model, not to the platform. Move the filter prompt (and its threshold, today a fixed 0.8 in the API) into the judge, let a host override it in `quiztiary.config.mjs`, and add a question for it in the `quiztiary-setup` skill (default: the judge's own prompt).
+- [x] Configurable question filter per judge. Filtering non-questions (the `unsafe` score) depends on prompt wording that will need tuning, and that wording belongs to each judge model, not to the platform. Move the filter prompt (and its threshold, today a fixed 0.8 in the API) into the judge, let a host override it in `quiztiary.config.mjs`, and add a question for it in the `quiztiary-setup` skill (default: the judge's own prompt).

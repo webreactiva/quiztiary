@@ -33,7 +33,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const j = await judge(clean);
-  if (j && j.unsafe > 0.8) return Response.json({ error: t('api.rejected') }, { status: 422 });
+  if (j?.rejected) return Response.json({ error: t('api.rejected') }, { status: 422 });
 
   // `owned` is only used for this roll: it is never stored.
   const ids = Object.keys(BADGES);
