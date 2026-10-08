@@ -86,6 +86,15 @@ try {
   assert.equal(boundaries('styles.css', 'p { color: var(--fg); } a { color: white; }'), 0, 'variables and named colours are fine in styles.css');
   checks += 5;
 
+  // run-checks runs every *.check.ts and fails when one does.
+  const cdir = mkdtempSync(join(tmp, 'checks-'));
+  mkdirSync(join(cdir, 'lib'));
+  writeFileSync(join(cdir, 'lib/ok.check.ts'), "console.log('fine');\n");
+  assert.equal(run('tools/run-checks.mjs', cdir).status, 0, 'run-checks fails on passing checks');
+  writeFileSync(join(cdir, 'lib/bad.check.ts'), "import assert from 'node:assert'; assert.equal(1, 2);\n");
+  assert.equal(run('tools/run-checks.mjs', cdir).status, 1, 'run-checks misses a failing check');
+  checks += 2;
+
   // The types step regenerates Astro's ambient types first: a fresh clone has no .astro/.
   assert.match(verify, /astro sync[^']*tsc --noEmit/, 'types step must run astro sync before tsc');
   checks++;
