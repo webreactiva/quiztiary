@@ -31,7 +31,7 @@ Round 2, the game:
 | Question | Default | Notes |
 |---|---|---|
 | Badge theme | current `badges` | List bundled themes with their badge names. "Draw a new theme" is a real option: see "New theme". |
-| How badges are chosen | `random` | `random`: pure chance, no AI, no key. `jev`: an AI reads each question and tilts the odds (it also filters spam and non-questions); needs a free key from https://console.typesafe.ai/keys. Another AI: see "Another AI". |
+| How badges are chosen | `random` | `random`: pure chance, no AI, no key. `jev`: an AI reads each question and tilts the odds (it also filters spam and non-questions); needs a free key from https://console.typesafe.ai/keys. `clef`: the same with Cloudflare's Clef on Workers AI; needs `CLOUDFLARE_ACCOUNT_ID` and a `CLOUDFLARE_API_TOKEN` with Workers AI read. Another AI: see "Another AI". |
 | What the AI rejects (only when the judge is not `random`) | the judge's own filter | Each judge ships a filter worded for its model: read its `filter` export in `src/lib/judges/<ai>.ts` and show it in plain words (for Jev: insults, personal data, spam, gibberish, and things that are not questions like "ok" or a greeting). Offer: keep it; stricter, e.g. only questions about the session's topic (write `filter.prompt` as one English sentence describing what to reject, like "The text is not about cooking, food or recipes."); or more lenient (raise `filter.threshold` toward 1; 1 rejects nothing). Tested with Jev: a topic prompt rejects off-topic questions and keeps on-topic ones. |
 | Anonymity delay | `[20, 90]` | Seconds before a question reaches the panel, so timing does not reveal the author. Fewer than 8 people → suggest `[30, 120]`. |
 

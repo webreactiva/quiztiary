@@ -11,7 +11,7 @@ Anonymous questions for live online sessions, with a host panel and pixel-art ba
 | `src/i18n/<locale>.json` | All user-facing text. One locale active. Use `t('key')`, never literals. |
 | `src/badges/render.mjs` | Badge engine: rarities, crown, bounce, aura. Knows no theme. |
 | `src/badges/themes/*.mjs` | Badge themes: 16×16 pixel art as text. The only place badge ids appear. |
-| `src/lib/judges/*.ts` | How badges are chosen (`random`, `jev`). The only place AI SDKs are imported. Contract in `index.ts`. |
+| `src/lib/judges/*.ts` | How badges are chosen (`random`, `jev`, `clef`). The only place AI SDKs are imported. Contract in `index.ts`. |
 | `src/lib/assign.ts` | Prize roll: the judge tilts, never decides. |
 | `src/lib/db.ts` | SQLite, random ids, release delay, long polling. Stores no participant data. |
 | `src/lib/public-url.ts` | Where the panel QR points: `PUBLIC_URL`, then strategies. |

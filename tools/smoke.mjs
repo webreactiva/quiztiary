@@ -104,7 +104,7 @@ try {
   step('no secrets in the client bundle');
   const walk = (d) => readdirSync(d).flatMap((f) => (statSync(join(d, f)).isDirectory() ? walk(join(d, f)) : [join(d, f)]));
   for (const f of walk('dist/client').filter((f) => /\.(js|css|html)$/.test(f))) {
-    assert.ok(!/PANEL_PASSWORD|JEV_API_KEY|process\.env/.test(readFileSync(f, 'utf8')), `${f} mentions a server secret`);
+    assert.ok(!/PANEL_PASSWORD|JEV_API_KEY|CLOUDFLARE_API_TOKEN|process\.env/.test(readFileSync(f, 'utf8')), `${f} mentions a server secret`);
   }
 
   console.log(`ok: ${config.locale} · ${config.ai} · ${config.badges} · got ${prize.rarity} ${prize.badge}`);

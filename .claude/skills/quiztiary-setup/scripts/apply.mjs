@@ -73,7 +73,7 @@ export default {
   locale: ${q(c.locale)},
   // Who is asking. The AI judge reads it to understand the questions (in English).
   audience: ${q(c.audience.trim())},
-  // How badges are rolled: a file in src/lib/judges/. 'random' needs no AI; 'jev' needs JEV_API_KEY.
+  // How badges are rolled: a file in src/lib/judges/. 'random' needs no AI; 'jev' needs JEV_API_KEY; 'clef' needs CLOUDFLARE_API_TOKEN.
   ai: ${q(c.ai)},
   // What an AI judge rejects as not a question (spam, insults, greetings, gibberish…). Each judge
   // ships wording tuned to its model; override it here. \`prompt\`: in English, what to reject.

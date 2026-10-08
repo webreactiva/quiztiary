@@ -103,6 +103,7 @@ A judge reads each question and returns how well it fits each badge, plus depth,
 
 - `random`: no AI, no key, no network, no filter.
 - `jev`: [Jev by TypeSafe AI](https://typesafe.ai). Set `JEV_API_KEY` in `.env`.
+- `clef`: [Clef by Cloudflare](https://developers.cloudflare.com/workers-ai/models/clef/) on Workers AI, same API as Jev. Set `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` in `.env`; `CLEF_MODEL=clef-flash` picks the faster variant.
 - Your own: add `src/lib/judges/<name>.ts` exporting `judge` (and `filter`, its default rejection prompt and threshold). The contract is documented in `src/lib/judges/index.ts`.
 
 The filter decides what gets rejected. Each judge ships wording tuned to its model; override it with `filter.prompt`, e.g. `"The text is not about cooking, food or recipes."` to accept only on-topic questions, or relax it by raising `filter.threshold` toward 1.

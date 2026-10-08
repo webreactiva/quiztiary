@@ -26,6 +26,7 @@ export async function startServer({ password = 'test-secret', env = {} } = {}) {
       DB_PATH: join(dir, 'test.db'),
       RELEASE_DELAY: '0',
       JEV_API_KEY: '',
+      CLOUDFLARE_API_TOKEN: '',
       PUBLIC_URL: '',
       ...env,
     },
