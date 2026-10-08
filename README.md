@@ -40,13 +40,43 @@ Use it for meetups, online events, Zoom and Google Meet calls, webinars, classes
 - Anonymous questions from any phone or laptop: open a link or scan a QR code
 - Live host panel with QR code, real-time updates and "mark as answered"
 - Pixel-art badges with rarities and accessories; bring your own theme
-- Optional AI moderation and classification (Jev), or pure chance with no AI at all
+- Optional AI moderation and classification (Jev or Clef), or pure chance with no AI at all
 - Pluggable judges: add another AI provider with one file
 - Multilingual: English and Spanish built in, one active language per session, add more with one JSON file
 - Fully themeable: name, palette, light and dark mode, favicon
 - Runs locally, public through a free Cloudflare tunnel; deploy anywhere Node runs
 - Privacy first: no accounts, no cookies, no IPs stored, no third-party requests from any page
 - Set up by your AI agent: a guided skill asks everything, with a default for each answer
+
+## How it works
+
+A question goes from an attendee's phone to the host's screen like this. Nothing that identifies the attendee is stored, and the random delay hides who asked from the timing.
+
+```mermaid
+sequenceDiagram
+    actor A as Attendee
+    participant S as Quiztiary server
+    participant J as AI judge
+    participant DB as SQLite
+    actor H as Host panel
+
+    A->>S: POST question text + badges already owned
+    S->>J: read the question
+    J-->>S: fit per badge, depth, example, shared doubt, filter score
+    alt filter score above threshold
+        S-->>A: rejected, please rephrase
+    else accepted
+        S->>S: roll the badge
+        S->>DB: store text + badge, release after a random delay
+        S-->>A: badge for the collection
+        Note over DB: waits 20 to 90 s by default
+        H->>S: long polling for new questions
+        S-->>H: question appears on the panel
+        H->>S: mark as answered
+        A->>S: poll status of my questions
+        S-->>A: answered
+    end
+```
 
 ## Quick start
 
@@ -100,6 +130,29 @@ Each badge has a `hint`, the kind of question it rewards (why, how, skeptical…
 ### Judges and the question filter
 
 A judge reads each question and returns how well it fits each badge, plus depth, whether many people would share it, whether it brings an example, and how well it matches the filter. It only tilts the roll: there is always a badge.
+
+```mermaid
+flowchart TD
+    Q["Attendee's question"] --> C{"ai in quiztiary.config.mjs"}
+    C -->|random| N["No judgement"]
+    C -->|jev, clef or your own| AI
+    subgraph AI ["AI judges"]
+        JEV["Jev by TypeSafe AI"]
+        CLEF["Clef on Cloudflare Workers AI"]
+        OWN["src/lib/judges/name.ts"]
+    end
+    AI --> V["Judgement, every value 0 to 1:<br/>fit per badge, depth, example,<br/>shared doubt, filter score"]
+    AI -.->|no key or error| N
+    V --> F{"filter score above<br/>filter.threshold?"}
+    F -->|yes| R["Rejected: ask to rephrase"]
+    F -->|no| ROLL
+    N --> ROLL["Prize roll: always a badge"]
+    ROLL --> B["Badge: 40% pure chance + 60% fit per badge,<br/>badges already owned weigh less"]
+    ROLL --> RA["Shiny 30-40%, legendary 15-30%: more with depth"]
+    ROLL --> AC["Crown 30-70%: shared doubt<br/>Bounce 30-70%: example"]
+```
+
+Without a judgement every value falls back to its base odds, so a missing key or a failing provider never blocks a question.
 
 - `random`: no AI, no key, no network, no filter.
 - `jev`: [Jev by TypeSafe AI](https://typesafe.ai). Set `JEV_API_KEY` in `.env`.
