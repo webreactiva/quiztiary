@@ -30,7 +30,7 @@ Quiztiary removes the risk and adds a reason to ask:
 
 - **Anonymous by design.** Questions arrive with no name and after a random delay, so not even the timing gives the author away.
 - **Gamified.** Every question drops a 16×16 pixel-art badge into the attendee's collection, with shiny and legendary variants, crowns and animations. People ask more to complete the set.
-- **AI that keeps it clean.** An AI judge ([Jev](https://typesafe.ai)) filters spam, insults and "lol ok" before they reach your screen, and the kind of question asked tilts which badge it earns.
+- **AI that keeps it clean.** An AI judge ([Jev](https://typesafe.ai) or [Clef on Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/models/clef/)) filters spam, insults and "lol ok" before they reach your screen, and the kind of question asked tilts which badge it earns.
 - **Made for the session, not forever.** It runs on your laptop and keeps everything local. When the session ends, so do the questions.
 
 Use it for meetups, online events, Zoom and Google Meet calls, webinars, classes, workshops, conference talks and team all-hands: anywhere you want a live audience Q&A.
@@ -63,11 +63,11 @@ Open `http://localhost:4321/panel`, enter the password and put the QR code on sc
 
 ## Make it yours with your AI agent
 
-Open the project with your coding agent and ask it to set up Quiztiary. The `quiztiary-setup` skill interviews you, offering a default for every answer:
+Open the project in Claude Code and run **`/quiztiary-setup`**. It is the fastest way to make Quiztiary yours: one conversation, a default for every answer. Using another coding agent? Ask it to set up Quiztiary with the `quiztiary-setup` skill. It asks you about:
 
 - event name and language
 - who is asking (so the AI understands the questions)
-- how badges are won: chance, Jev, or another AI, and what the AI should reject
+- how badges are won: chance, Jev, Clef, or another AI, and what the AI should reject
 - the badge theme: a bundled one, or **a new pixel-art theme drawn to order** from a one-line brief
 - anonymity delay, public URL, colours and panel password
 
